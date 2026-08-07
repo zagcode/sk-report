@@ -1050,7 +1050,7 @@ DanfeUtils.formatCnpj($F{CpfDestinatario})]]></textFieldExpression>
     ( DanfeUtils.getFaturas($P{NUNOTA}, $P{JDBC_CONNECTION}, $P{REPORT_DATA_SOURCE}) == null
         ? ""
         : " | " + DanfeUtils.getFaturas($P{NUNOTA}, $P{JDBC_CONNECTION}, $P{REPORT_DATA_SOURCE})
-            .replaceAll("OUT=\\d+\\s+Venc=\\d{2}/\\d{2}/\\d{4}\\s+Valor=([0-9.,]+)", "Abatimento de R\\$$1")
+            .replaceAll("OUT=[\\d-]+\\s+Venc=\\d{2}/\\d{2}/\\d{4}\\s+Valor=([0-9.,]+)", "Abatimento de R\\$$1")
     )
 )]]></textFieldExpression>
 				</textField>
