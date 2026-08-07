@@ -1,0 +1,240 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Relatorio Semanal_fechamento" language="groovy" pageWidth="555" pageHeight="842" columnWidth="555" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" whenNoDataType="NoPages">
+	<property name="ireport.zoom" value="1.3310000000000008"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<property name="ireport.definition"/>
+	<parameter name="NURENEG" class="java.math.BigDecimal" isForPrompting="false"/>
+	<parameter name="CODPARC" class="java.math.BigDecimal" isForPrompting="false"/>
+	<queryString>
+		<![CDATA[WITH NOTAS_RENEG AS (
+    -- Notas que de fato entraram nesta renegociação: vínculo direto gravado pelo Sankhya
+    -- em AD_TDPSRENEGPARCFINOFIG (Financeiros Origem), não uma heurística de tipo de título/data.
+    SELECT DISTINCT FIN.NUNOTA
+    FROM AD_TDPSRENEGPARCFINOFIG ORIG
+    INNER JOIN TGFFIN FIN ON FIN.NUFIN = ORIG.NUFIN
+    WHERE ORIG.CODIGO = $P{NURENEG}
+      AND ORIG.CODPARC = $P{CODPARC}
+      AND FIN.NUNOTA IS NOT NULL
+),
+-- DEV_INFO: casa cada nota faturada com o crédito de devolução (CODTIPTIT = 20) que a abateu.
+-- Só via NUCOMPENS (compensação formal no financeiro) — mesmo critério validado em amigavel/_fechamento.jrxml.
+DEV_INFO AS (
+    SELECT
+        X.NUNOTA_ORIG,
+        STRING_AGG(CAST(X.NUMNOTA_DEV AS VARCHAR(MAX)), ' / ') AS NF_DEVOLUCAO,
+        SUM(X.VLRNOTA_DEV) AS VALOR_DEVOLVIDO
+    FROM (
+        SELECT DISTINCT
+            FIN_COMP.NUNOTA AS NUNOTA_ORIG,
+            DEV.NUNOTA      AS NUNOTA_DEV,
+            DEV.NUMNOTA     AS NUMNOTA_DEV,
+            ABS(FIN_CRED.VLRDESDOB) AS VLRNOTA_DEV
+        FROM TGFFIN FIN_COMP
+        INNER JOIN TGFFIN FIN_CRED
+            ON FIN_CRED.NUCOMPENS = FIN_COMP.NUCOMPENS
+           AND FIN_COMP.VLRDESDOB = FIN_CRED.VLRDESDOB
+           AND FIN_COMP.NUFIN <> FIN_CRED.NUFIN
+           AND FIN_CRED.CODTIPTIT = 20
+        INNER JOIN TGFCAB DEV
+            ON DEV.NUNOTA = FIN_CRED.NUNOTA
+           AND DEV.TIPMOV = 'D'
+    ) X
+    GROUP BY X.NUNOTA_ORIG
+)
+SELECT
+    CAB.NUMNOTA,
+    CAB.SERIENOTA,
+    CAB.DTNEG,
+    CAB.VLRNOTA,
+    CAB.NUNOTA,
+    DEV_INFO.NF_DEVOLUCAO,
+    -- trava de segurança: crédito aplicado a uma nota nunca pode passar do valor da própria nota (Saldo nunca fica negativo)
+    CASE
+        WHEN COALESCE(DEV_INFO.VALOR_DEVOLVIDO, 0) > CAB.VLRNOTA THEN CAB.VLRNOTA
+        ELSE COALESCE(DEV_INFO.VALOR_DEVOLVIDO, 0)
+    END AS VALOR_DEVOLVIDO
+FROM TGFCAB CAB
+INNER JOIN NOTAS_RENEG NR
+    ON NR.NUNOTA = CAB.NUNOTA
+LEFT JOIN DEV_INFO
+    ON DEV_INFO.NUNOTA_ORIG = CAB.NUNOTA
+WHERE CAB.TIPMOV <> 'D'
+  AND CAB.STATUSNFE = 'A'
+ORDER BY CAB.NUMNOTA;]]>
+	</queryString>
+	<field name="NUMNOTA" class="java.math.BigDecimal"/>
+	<field name="SERIENOTA" class="java.lang.String"/>
+	<field name="DTNEG" class="java.sql.Timestamp"/>
+	<field name="VLRNOTA" class="java.math.BigDecimal"/>
+	<field name="NUNOTA" class="java.math.BigDecimal"/>
+	<field name="NF_DEVOLUCAO" class="java.lang.String"/>
+	<field name="VALOR_DEVOLVIDO" class="java.math.BigDecimal"/>
+	<variable name="VLRNOTATOTAL" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{VLRNOTA}]]></variableExpression>
+	</variable>
+	<variable name="QTDNOTAS" class="java.math.BigDecimal" calculation="Count">
+		<variableExpression><![CDATA[java.math.BigDecimal.ONE]]></variableExpression>
+	</variable>
+	<variable name="VLRTOTALABATIDO" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{VALOR_DEVOLVIDO} == null ? java.math.BigDecimal.ZERO : $F{VALOR_DEVOLVIDO}]]></variableExpression>
+	</variable>
+	<variable name="VALOR_DEVOLVIDO_TEXTO" class="java.lang.String">
+		<variableExpression><![CDATA[$F{VALOR_DEVOLVIDO} == null ? "-" : new java.text.DecimalFormat("#,##0.00").format($F{VALOR_DEVOLVIDO})]]></variableExpression>
+	</variable>
+	<variable name="VALOR_TOTAL" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{VLRNOTA}.subtract($F{VALOR_DEVOLVIDO} == null ? BigDecimal.ZERO : $F{VALOR_DEVOLVIDO})]]></variableExpression>
+	</variable>
+	<columnHeader>
+		<band height="36">
+			<staticText>
+				<reportElement x="1" y="0" width="554" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font isBold="true" isUnderline="false"/>
+				</textElement>
+				<text><![CDATA[FATURAMENTO ACUMULADO]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="19" width="60" height="15"/>
+				<textElement textAlignment="Center" verticalAlignment="Top">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Número]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="73" y="21" width="39" height="15"/>
+				<textElement textAlignment="Center" verticalAlignment="Top">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Série]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="128" y="20" width="63" height="15"/>
+				<textElement textAlignment="Center" verticalAlignment="Top">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Emissão]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="216" y="20" width="80" height="15"/>
+				<textElement textAlignment="Center" verticalAlignment="Top">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Valor NF]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="296" y="21" width="122" height="15"/>
+				<textElement textAlignment="Center" verticalAlignment="Top">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Abatimento]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="430" y="21" width="122" height="15"/>
+				<textElement textAlignment="Center" verticalAlignment="Top">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Saldo]]></text>
+			</staticText>
+			<line>
+				<reportElement x="0" y="34" width="555" height="1"/>
+			</line>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="15">
+			<textField>
+				<reportElement x="1" y="0" width="72" height="15"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{NUMNOTA}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="86" y="0" width="26" height="15"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{SERIENOTA}]]></textFieldExpression>
+			</textField>
+			<textField pattern="dd/MM/yyyy">
+				<reportElement x="128" y="0" width="63" height="15"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression class="java.sql.Timestamp"><![CDATA[$F{DTNEG}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00;-#,##0.00">
+				<reportElement x="216" y="0" width="80" height="15"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{VLRNOTA}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="446" y="0" width="90" height="15"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{VALOR_DEVOLVIDO} == null ? new java.text.DecimalFormat("#,##0.00").format($F{VLRNOTA}) : new java.text.DecimalFormat("#,##0.00").format(($F{VLRNOTA}.subtract( $F{VALOR_DEVOLVIDO})))]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="311" y="0" width="90" height="15"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{VALOR_DEVOLVIDO} == null ? "-" : new java.text.DecimalFormat("#,##0.00").format($F{VALOR_DEVOLVIDO})]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<columnFooter>
+		<band height="34">
+			<staticText>
+				<reportElement x="1" y="6" width="98" height="15"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font isBold="true" isItalic="false"/>
+				</textElement>
+				<text><![CDATA[Qtde de Notas:]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="86" y="6" width="42" height="15"/>
+				<textElement verticalAlignment="Middle"/>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{QTDNOTAS}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="128" y="6" width="73" height="15"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Valor NF: ]]></text>
+			</staticText>
+			<textField pattern="#,##0.00;-#,##0.00">
+				<reportElement x="201" y="6" width="58" height="15"/>
+				<textElement verticalAlignment="Middle"/>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{VLRNOTATOTAL}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="245" y="6" width="102" height="15"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Abatimento:]]></text>
+			</staticText>
+			<textField pattern="#,##0.00;-#,##0.00">
+				<reportElement x="347" y="6" width="54" height="15"/>
+				<textElement verticalAlignment="Middle"/>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{VLRTOTALABATIDO}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement x="0" y="2" width="555" height="1"/>
+			</line>
+			<staticText>
+				<reportElement x="415" y="6" width="83" height="15"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Valor Total:]]></text>
+			</staticText>
+			<textField pattern="#,##0.00;-#,##0.00">
+				<reportElement x="498" y="6" width="54" height="15"/>
+				<textElement verticalAlignment="Middle"/>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{VALOR_TOTAL}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="1" y="22" width="553" height="10"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font size="7" isItalic="true"/>
+				</textElement>
+				<text><![CDATA[Saldo = Valor NF menos o crédito de devolução vinculado a esta nota. Só entram nesta lista as notas que efetivamente compõem esta renegociação.]]></text>
+			</staticText>
+		</band>
+	</columnFooter>
+</jasperReport>

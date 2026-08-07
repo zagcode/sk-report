@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport ...>
+    <property name="ireport.zoom" value="1.25"/>
+    <property name="ireport.x" value="0"/>
+    <property name="ireport.y" value="0"/>
+    <property name="ireport.definition"/>
+    
+    <!-- STYLE PARA LINHAS ZEBRADAS -->
+    <style name="zebrado" mode="Opaque" backcolor="#FFFFFF">
+        <conditionalStyle>
+            <conditionExpression><![CDATA[new Boolean($V{REPORT_COUNT}.intValue() % 2 == 0)]]></conditionExpression>
+            <style backcolor="#E8E8E8"/>
+        </conditionalStyle>
+    </style>
+    
+    <parameter name="CODEMP" class="java.math.BigDecimal">
+        ...
+    </parameter>
+    
+    <!-- ... resto dos parâmetros ... -->
+    
+    <queryString>
+        <![CDATA[...]]>
+    </queryString>
+    
+    <!-- ... fields ... -->
+    
+    <title>
+        ...
+    </title>
+    
+    <columnHeader>
+        ...
+    </columnHeader>
+    
+    <detail>
+        <band height="18" splitType="Stretch">
+            <textField>
+                <reportElement style="zebrado" x="0" y="0" width="68" height="16"/>
+                <box leftPadding="1" rightPadding="2"/>
+                <textElement textAlignment="Right" verticalAlignment="Middle">
+                    <font size="8"/>
+                </textElement>
+                <textFieldExpression class="java.lang.String"><![CDATA[$F{CODITEM} == null ? "-" : $F{CODITEM}.toString()]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement style="zebrado" x="70" y="0" width="90" height="16"/>
+                <box leftPadding="2" rightPadding="2"/>
+                <textElement verticalAlignment="Middle">
+                    <font size="8"/>
+                </textElement>
+                <textFieldExpression class="java.lang.String"><![CDATA[$F{MARCA} == null ? "-" : $F{MARCA}]]></textFieldExpression>
+            </textField>
+            <textField pattern="#,##0.00">
+                <reportElement style="zebrado" x="162" y="0" width="64" height="16"/>
+                <box leftPadding="1" rightPadding="2"/>
+                <textElement textAlignment="Right" verticalAlignment="Middle">
+                    <font size="8"/>
+                </textElement>
+                <textFieldExpression class="java.lang.String"><![CDATA[$F{VLRUNIT} == null ? "-" : new java.text.DecimalFormat("#,##0.00").format($F{VLRUNIT})]]></textFieldExpression>
+            </textField>
+            <textField pattern="#,##0.00">
+                <reportElement style="zebrado" x="228" y="0" width="56" height="16"/>
+                <box leftPadding="1" rightPadding="2"/>
+                <textElement textAlignment="Right" verticalAlignment="Middle">
+                    <font size="8"/>
+                </textElement>
+                <textFieldExpression class="java.lang.String"><![CDATA[$F{VLRST} == null ? "-" : new java.text.DecimalFormat("#,##0.00").format($F{VLRST})]]></textFieldExpression>
+            </textField>
+            <textField pattern="#,##0.00">
+                <reportElement style="zebrado" x="286" y="0" width="64" height="16"/>
+                <box leftPadding="1" rightPadding="2"/>
+                <textElement textAlignment="Right" verticalAlignment="Middle">
+                    <font size="8"/>
+                </textElement>
+                <textFieldExpression class="java.lang.String"><![CDATA[$F{VLRVENDA} == null ? "-" : new java.text.DecimalFormat("#,##0.00").format($F{VLRVENDA})]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement style="zebrado" x="356" y="0" width="102" height="16"/>
+                <box leftPadding="3" rightPadding="2"/>
+                <textElement verticalAlignment="Middle">
+                    <font size="8"/>
+                </textElement>
+                <textFieldExpression class="java.lang.String"><![CDATA[$F{APLICACAO} == null ? "-" : $F{APLICACAO}]]></textFieldExpression>
+            </textField>
+            <textField isStretchWithOverflow="true">
+                <reportElement style="zebrado" x="460" y="0" width="146" height="16"/>
+                <box leftPadding="3" rightPadding="2"/>
+                <textElement verticalAlignment="Middle">
+                    <font size="8"/>
+                </textElement>
+                <textFieldExpression class="java.lang.String"><![CDATA[$F{DESCRICAO} == null ? "-" : $F{DESCRICAO}]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement style="zebrado" x="610" y="0" width="70" height="16"/>
+                <box leftPadding="1" rightPadding="1"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle">
+                    <font size="8"/>
+                </textElement>
+                <textFieldExpression class="java.lang.String"><![CDATA[$F{DTINICIO} == null ? "-" : new java.text.SimpleDateFormat("dd/MM/yyyy").format($F{DTINICIO})]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement style="zebrado" x="682" y="0" width="70" height="16"/>
+                <box leftPadding="1" rightPadding="1"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle">
+                    <font size="8"/>
+                </textElement>
+                <textFieldExpression class="java.lang.String"><![CDATA[$F{DTFIM} == null ? "-" : new java.text.SimpleDateFormat("dd/MM/yyyy").format($F{DTFIM})]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement style="zebrado" x="754" y="0" width="48" height="16"/>
+                <box leftPadding="1" rightPadding="2"/>
+                <textElement textAlignment="Right" verticalAlignment="Middle">
+                    <font size="8"/>
+                </textElement>
+                <textFieldExpression class="java.lang.String"><![CDATA[$F{CODPROD} == null ? "-" : $F{CODPROD}.toString()]]></textFieldExpression>
+            </textField>
+        </band>
+    </detail>
+    
+    <pageFooter>
+        ...
+    </pageFooter>
+</jasperReport>

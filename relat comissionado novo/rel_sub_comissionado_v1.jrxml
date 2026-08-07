@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="rel_sub_comissionado" language="groovy" pageWidth="567" pageHeight="802" columnWidth="567" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" isSummaryNewPage="true">
+	<property name="ireport.zoom" value="1.7715610000000013"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<property name="ireport.definition"/>
+	<parameter name="DATA_NEG_INI" class="java.sql.Timestamp">
+		<property name="TGFCAB" value="DTNEG"/>
+		<parameterDescription><![CDATA[DT. de Negociação(inicio)]]></parameterDescription>
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<parameter name="DATA_NEG_FIN" class="java.sql.Timestamp">
+		<property name="TGFCAB" value="DTNEG"/>
+		<parameterDescription><![CDATA[Dt. de Negociação(final)]]></parameterDescription>
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<parameter name="CODEMP" class="java.math.BigDecimal" isForPrompting="false"/>
+	<parameter name="CODVEND" class="java.math.BigDecimal" isForPrompting="false"/>
+	<queryString>
+		<![CDATA[-- Primeira consulta (vendedor principal)
+SELECT
+    PAR.CODPARC,
+    PAR.NOMEPARC,
+    UPPER(CID.NOMECID) AS NOMECID,
+    SUM(COM.VLRTOTAL) AS VALORNOTA,
+    SUM(COM.VLRCOM_REP) AS VALORCOMISSAO
+FROM AD_COMISSAODPS COM
+INNER JOIN TGFPAR PAR ON PAR.CODPARC = COM.CODPARC
+LEFT JOIN TSICID CID ON CID.CODCID = PAR.CODCID
+WHERE COM.SITUACAO = 'A'
+    AND COM.DTNEG BETWEEN $P{DATA_NEG_INI} AND $P{DATA_NEG_FIN}
+    AND COM.CODEMP = $P{CODEMP}
+    -- Se vendedor informado, filtra por ele; senão, filtra por tipo_classe
+    AND COM.CODVEND = $P{CODVEND}
+GROUP BY
+    PAR.CODPARC,
+    PAR.NOMEPARC,
+    CID.NOMECID
+
+UNION ALL
+
+-- Segunda consulta (vendedor alternativo - CODVENDATE)
+SELECT
+    PAR.CODPARC,
+    PAR.NOMEPARC,
+    UPPER(CID.NOMECID) AS NOMECID,
+    SUM(COM.VLRTOTAL) AS VALORNOTA,
+    SUM(COM.VLRCOM_ATE) AS VALORCOMISSAO
+FROM AD_COMISSAODPS COM
+INNER JOIN TGFPAR PAR ON PAR.CODPARC = COM.CODPARC
+LEFT JOIN TSICID CID ON CID.CODCID = PAR.CODCID
+WHERE COM.SITUACAO = 'A'
+    AND COM.DTNEG BETWEEN $P{DATA_NEG_INI} AND $P{DATA_NEG_FIN}
+    AND COM.CODEMP = $P{CODEMP}
+    AND COM.CODVENDATE IS NOT NULL
+    -- Se vendedor informado, filtra por ele; senão, filtra por tipo_classe
+    AND COM.CODVENDATE = $P{CODVEND}
+GROUP BY
+    PAR.CODPARC,
+    PAR.NOMEPARC,
+    CID.NOMECID
+
+ORDER BY CODPARC]]>
+	</queryString>
+	<field name="CODPARC" class="java.lang.Integer"/>
+	<field name="NOMEPARC" class="java.lang.String"/>
+	<field name="NOMECID" class="java.lang.String"/>
+	<field name="VALORNOTA" class="java.math.BigDecimal"/>
+	<field name="VALORCOMISSAO" class="java.math.BigDecimal"/>
+	<variable name="VLRTOTAL" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{VALORNOTA}]]></variableExpression>
+	</variable>
+	<variable name="VLRCOMISSAO" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{VALORCOMISSAO}]]></variableExpression>
+	</variable>
+	<variable name="VLR_DEV" class="java.math.BigDecimal"/>
+	<variable name="VLR_DEV_COM" class="java.math.BigDecimal"/>
+	<columnHeader>
+		<band height="16" splitType="Stretch">
+			<rectangle>
+				<reportElement x="0" y="0" width="567" height="15"/>
+			</rectangle>
+			<staticText>
+				<reportElement mode="Transparent" x="1" y="2" width="120" height="12" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="Arial" size="7" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Helvetica" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+				</textElement>
+				<text><![CDATA[ CLIENTE]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="130" y="2" width="120" height="12" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="Arial" size="7" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Helvetica" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+				</textElement>
+				<text><![CDATA[CIDADE]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="408" y="0" width="52" height="15" forecolor="#000000" backcolor="#CCCCCC"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="Arial" size="7" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Helvetica" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+				</textElement>
+				<text><![CDATA[Valor Nota]]></text>
+			</staticText>
+			<rectangle>
+				<reportElement mode="Transparent" x="408" y="0" width="52" height="15"/>
+			</rectangle>
+			<staticText>
+				<reportElement mode="Opaque" x="460" y="0" width="63" height="15" forecolor="#000000" backcolor="#CCCCCC"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="Arial" size="7" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Helvetica" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+				</textElement>
+				<text><![CDATA[Valor Comissão]]></text>
+			</staticText>
+			<rectangle>
+				<reportElement mode="Transparent" x="460" y="0" width="63" height="15"/>
+			</rectangle>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="17" splitType="Stretch">
+			<rectangle>
+				<reportElement x="0" y="2" width="567" height="15"/>
+				<graphicElement>
+					<pen lineWidth="0.5"/>
+				</graphicElement>
+			</rectangle>
+			<textField pattern="" isBlankWhenNull="false">
+				<reportElement mode="Transparent" x="1" y="4" width="120" height="12" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="Arial" size="6" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Helvetica" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{CODPARC}+" - "+$F{NOMEPARC}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="130" y="4" width="120" height="12"/>
+				<textElement verticalAlignment="Middle">
+					<font size="6"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{NOMECID}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement x="459" y="4" width="1" height="11"/>
+			</line>
+			<textField pattern="¤ #,##0.00" isBlankWhenNull="false">
+				<reportElement mode="Opaque" x="408" y="4" width="50" height="12" forecolor="#000000" backcolor="#CCCCCC"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="Arial" size="7" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Helvetica" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{VALORNOTA}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement x="523" y="4" width="1" height="11"/>
+			</line>
+			<textField pattern="¤ #,##0.00" isBlankWhenNull="false">
+				<reportElement mode="Opaque" x="461" y="4" width="61" height="12" forecolor="#000000" backcolor="#CCCCCC"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="Arial" size="7" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Helvetica" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{VALORCOMISSAO}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<lastPageFooter>
+		<band height="21">
+			<rectangle radius="5">
+				<reportElement x="309" y="4" width="256" height="15" backcolor="#CCCCCC"/>
+			</rectangle>
+			<staticText>
+				<reportElement x="309" y="4" width="54" height="13"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="9"/>
+				</textElement>
+				<text><![CDATA[Totais: ]]></text>
+			</staticText>
+			<textField pattern="¤ #,##0.00">
+				<reportElement x="363" y="4" width="96" height="13"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{VLRTOTAL}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement x="461" y="6" width="1" height="11"/>
+			</line>
+			<textField pattern="¤ #,##0.00">
+				<reportElement x="465" y="4" width="89" height="13"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{VLRCOMISSAO}]]></textFieldExpression>
+			</textField>
+		</band>
+	</lastPageFooter>
+	<summary>
+		<band>
+			<subreport>
+				<reportElement key="rel_sub_comissionado_dev" x="0" y="0" width="567" height="0"/>
+				<subreportParameter name="DATA_NEG_INI">
+					<subreportParameterExpression><![CDATA[$P{DATA_NEG_INI}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="DATA_NEG_FIN">
+					<subreportParameterExpression><![CDATA[$P{DATA_NEG_FIN}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="CODEMP">
+					<subreportParameterExpression><![CDATA[$P{CODEMP}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="CODVEND">
+					<subreportParameterExpression><![CDATA[$P{CODVEND}]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<returnValue subreportVariable="VALOR_TOTAL" toVariable="VLR_DEV"/>
+				<returnValue subreportVariable="VALOR_COMISSAO" toVariable="VLR_DEV_COM"/>
+				<subreportExpression class="java.lang.String"><![CDATA[$P{SUBREPORT_DIR} + "rel_sub_comissionado_dev_v1.jasper"]]></subreportExpression>
+			</subreport>
+		</band>
+	</summary>
+</jasperReport>

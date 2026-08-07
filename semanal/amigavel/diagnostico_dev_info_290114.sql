@@ -1,0 +1,177 @@
+-- Diagnóstico: verificar se a nota NUMNOTA=290114 (cliente CODPARC=2572) está sendo casada por
+-- mais de uma "Opção" do DEV_INFO (em Relatorio Semanal_fechamento.jrxml) ao mesmo tempo,
+-- o que causaria contagem duplicada do crédito de devolução.
+-- Rode isto direto no banco (sem agrupar) e veja quantas linhas voltam e de qual Opção.
+-- Se a mesma NUNOTA_DEV aparecer em mais de uma Opção, confirma a duplicação.
+
+DECLARE @NUNOTA_ORIG INT = (
+    SELECT TOP 1 NUNOTA
+    FROM TGFCAB
+    WHERE NUMNOTA = 290114
+      AND CODPARC = 2572
+      AND TIPMOV <> 'D'
+);
+
+SELECT @NUNOTA_ORIG AS NUNOTA_RESOLVIDO;
+
+SELECT
+    'Opção 1 (NUCOMPENS)' AS ORIGEM_OPCAO,
+    FIN_COMP.NUNOTA AS NUNOTA_ORIG,
+    DEV.NUNOTA      AS NUNOTA_DEV,
+    DEV.NUMNOTA     AS NUMNOTA_DEV,
+    ABS(FIN_CRED.VLRDESDOB) AS VLRNOTA_DEV
+FROM TGFFIN FIN_COMP
+INNER JOIN TGFFIN FIN_CRED
+    ON FIN_CRED.NUCOMPENS = FIN_COMP.NUCOMPENS
+   AND FIN_COMP.VLRDESDOB = FIN_CRED.VLRDESDOB
+   AND FIN_COMP.NUFIN <> FIN_CRED.NUFIN
+   AND FIN_CRED.CODTIPTIT = 20
+INNER JOIN TGFCAB DEV
+    ON DEV.NUNOTA = FIN_CRED.NUNOTA
+   AND DEV.TIPMOV = 'D'
+WHERE FIN_COMP.NUNOTA = @NUNOTA_ORIG
+
+UNION ALL
+
+SELECT
+    'Opção 2 (CODPARC+valor+data)' AS ORIGEM_OPCAO,
+    FIN_COMP.NUNOTA AS NUNOTA_ORIG,
+    DEV.NUNOTA      AS NUNOTA_DEV,
+    DEV.NUMNOTA     AS NUMNOTA_DEV,
+    ABS(FIN_CRED.VLRDESDOB) AS VLRNOTA_DEV
+FROM TGFFIN FIN_COMP
+INNER JOIN TGFCAB CAB_ORIG
+    ON CAB_ORIG.NUNOTA = FIN_COMP.NUNOTA
+   AND CAB_ORIG.TIPMOV <> 'D'
+INNER JOIN TGFFIN FIN_CRED
+    ON FIN_CRED.CODPARC = FIN_COMP.CODPARC
+   AND FIN_CRED.CODTIPTIT = 20
+   AND FIN_CRED.VLRDESDOB = FIN_COMP.VLRDESDOB
+   AND ABS(DATEDIFF(DAY, FIN_COMP.DTNEG, FIN_CRED.DTNEG)) <= 120
+INNER JOIN TGFCAB DEV
+    ON DEV.NUNOTA = FIN_CRED.NUNOTA
+   AND DEV.TIPMOV = 'D'
+WHERE FIN_COMP.NUNOTA = @NUNOTA_ORIG
+
+UNION ALL
+
+SELECT
+    'Opção 3 (valor solto)' AS ORIGEM_OPCAO,
+    FIN_COMP.NUNOTA AS NUNOTA_ORIG,
+    DEV.NUNOTA      AS NUNOTA_DEV,
+    DEV.NUMNOTA     AS NUMNOTA_DEV,
+    ABS(FIN_COMP.VLRDESDOB) AS VLRNOTA_DEV
+FROM TGFFIN FIN_COMP
+INNER JOIN TGFCAB CAB_ORIG
+    ON CAB_ORIG.NUNOTA = FIN_COMP.NUNOTA
+   AND CAB_ORIG.TIPMOV <> 'D'
+INNER JOIN TGFCAB DEV
+    ON DEV.CODPARC = CAB_ORIG.CODPARC
+   AND DEV.TIPMOV = 'D'
+   AND DEV.VLRNOTA = ABS(FIN_COMP.VLRDESDOB)
+   AND ABS(DATEDIFF(DAY, FIN_COMP.DTNEG, DEV.DTNEG)) <= 120
+WHERE FIN_COMP.NUNOTA = @NUNOTA_ORIG
+
+ORDER BY ORIGEM_OPCAO;
+
+-- ============================================================
+-- CONFIRMADO: Opção 1 e Opção 2 retornam exatamente as mesmas 8 linhas
+-- (duplicando o crédito somado no DEV_INFO). Corrigido em Relatorio Semanal_fechamento.jrxml
+-- adicionando NOT EXISTS para que Opção 2 só rode quando a Opção 1 não achou nada
+-- para aquele título, e Opção 3 só rode quando nem a 1 nem a 2 acharam nada.
+--
+-- Verificação: rode a query abaixo (é o DEV_INFO já corrigido, isolado) e confirme
+-- que o resultado para esta nota é 589,36 (não 1.268,61).
+-- ============================================================
+
+WITH DEV_INFO_CORRIGIDO AS (
+    SELECT
+        X.NUNOTA_ORIG,
+        STRING_AGG(CAST(X.NUMNOTA_DEV AS VARCHAR(MAX)), ' / ') AS NF_DEVOLUCAO,
+        SUM(X.VLRNOTA_DEV) AS VALOR_DEVOLVIDO
+    FROM (
+        -- Opção 1: via NUCOMPENS + CODTIPTIT = 20
+        SELECT DISTINCT
+            FIN_COMP.NUNOTA AS NUNOTA_ORIG,
+            DEV.NUNOTA      AS NUNOTA_DEV,
+            DEV.NUMNOTA     AS NUMNOTA_DEV,
+            ABS(FIN_CRED.VLRDESDOB) AS VLRNOTA_DEV
+        FROM TGFFIN FIN_COMP
+        INNER JOIN TGFFIN FIN_CRED
+            ON FIN_CRED.NUCOMPENS = FIN_COMP.NUCOMPENS
+           AND FIN_COMP.VLRDESDOB = FIN_CRED.VLRDESDOB
+           AND FIN_COMP.NUFIN <> FIN_CRED.NUFIN
+           AND FIN_CRED.CODTIPTIT = 20
+        INNER JOIN TGFCAB DEV
+            ON DEV.NUNOTA = FIN_CRED.NUNOTA
+           AND DEV.TIPMOV = 'D'
+        WHERE FIN_COMP.NUNOTA = @NUNOTA_ORIG
+
+        UNION ALL
+
+        -- Opção 2: só roda se a Opção 1 não achou nada para este título
+        SELECT DISTINCT
+            FIN_COMP.NUNOTA AS NUNOTA_ORIG,
+            DEV.NUNOTA      AS NUNOTA_DEV,
+            DEV.NUMNOTA     AS NUMNOTA_DEV,
+            ABS(FIN_CRED.VLRDESDOB) AS VLRNOTA_DEV
+        FROM TGFFIN FIN_COMP
+        INNER JOIN TGFCAB CAB_ORIG
+            ON CAB_ORIG.NUNOTA = FIN_COMP.NUNOTA
+           AND CAB_ORIG.TIPMOV <> 'D'
+        INNER JOIN TGFFIN FIN_CRED
+            ON FIN_CRED.CODPARC = FIN_COMP.CODPARC
+           AND FIN_CRED.CODTIPTIT = 20
+           AND FIN_CRED.VLRDESDOB = FIN_COMP.VLRDESDOB
+           AND ABS(DATEDIFF(DAY, FIN_COMP.DTNEG, FIN_CRED.DTNEG)) <= 120
+        INNER JOIN TGFCAB DEV
+            ON DEV.NUNOTA = FIN_CRED.NUNOTA
+           AND DEV.TIPMOV = 'D'
+        WHERE FIN_COMP.NUNOTA = @NUNOTA_ORIG
+          AND NOT EXISTS (
+                SELECT 1
+                FROM TGFFIN FIN_CRED_OP1
+                WHERE FIN_CRED_OP1.NUCOMPENS = FIN_COMP.NUCOMPENS
+                  AND FIN_COMP.VLRDESDOB = FIN_CRED_OP1.VLRDESDOB
+                  AND FIN_COMP.NUFIN <> FIN_CRED_OP1.NUFIN
+                  AND FIN_CRED_OP1.CODTIPTIT = 20
+          )
+
+        UNION ALL
+
+        -- Opção 3: só roda se nem a 1 nem a 2 acharam nada
+        SELECT DISTINCT
+            FIN_COMP.NUNOTA AS NUNOTA_ORIG,
+            DEV.NUNOTA      AS NUNOTA_DEV,
+            DEV.NUMNOTA     AS NUMNOTA_DEV,
+            ABS(FIN_COMP.VLRDESDOB) AS VLRNOTA_DEV
+        FROM TGFFIN FIN_COMP
+        INNER JOIN TGFCAB CAB_ORIG
+            ON CAB_ORIG.NUNOTA = FIN_COMP.NUNOTA
+           AND CAB_ORIG.TIPMOV <> 'D'
+        INNER JOIN TGFCAB DEV
+            ON DEV.CODPARC = CAB_ORIG.CODPARC
+           AND DEV.TIPMOV = 'D'
+           AND DEV.VLRNOTA = ABS(FIN_COMP.VLRDESDOB)
+           AND ABS(DATEDIFF(DAY, FIN_COMP.DTNEG, DEV.DTNEG)) <= 120
+        WHERE FIN_COMP.NUNOTA = @NUNOTA_ORIG
+          AND NOT EXISTS (
+                SELECT 1
+                FROM TGFFIN FIN_CRED_OP1
+                WHERE FIN_CRED_OP1.NUCOMPENS = FIN_COMP.NUCOMPENS
+                  AND FIN_COMP.VLRDESDOB = FIN_CRED_OP1.VLRDESDOB
+                  AND FIN_COMP.NUFIN <> FIN_CRED_OP1.NUFIN
+                  AND FIN_CRED_OP1.CODTIPTIT = 20
+          )
+          AND NOT EXISTS (
+                SELECT 1
+                FROM TGFFIN FIN_CRED_OP2
+                WHERE FIN_CRED_OP2.CODPARC = FIN_COMP.CODPARC
+                  AND FIN_CRED_OP2.CODTIPTIT = 20
+                  AND FIN_CRED_OP2.VLRDESDOB = FIN_COMP.VLRDESDOB
+                  AND ABS(DATEDIFF(DAY, FIN_COMP.DTNEG, FIN_CRED_OP2.DTNEG)) <= 120
+          )
+    ) X
+    GROUP BY X.NUNOTA_ORIG
+)
+SELECT * FROM DEV_INFO_CORRIGIDO;

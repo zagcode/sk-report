@@ -1,0 +1,251 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<metadata>
+  <exportInfo>
+    <exportTime>08/07/2026 10:09:51</exportTime>
+    <systemVersion>4.35b772</systemVersion>
+    <systemCharSet>ISO-8859-1</systemCharSet>
+    <dbMetadata>
+      <dbUser>sankhya</dbUser>
+      <urlConnection><![CDATA[jdbc:sqlserver://172.30.0.2:1433;connectRetryInterval=10;connectRetryCount=1;maxResultBuffer=-1;sendTemporalDataTypesAsStringForBulkCopy=true;delayLoadingLobs=true;useFmtOnly=false;useBulkCopyForBatchInsert=false;cancelQueryTimeout=-1;sslProtocol=TLS;jaasConfigurationName=SQLJDBCDriver;statementPoolingCacheSize=0;serverPreparedStatementDiscardThreshold=10;enablePrepareOnFirstPreparedStatementCall=false;fips=false;socketTimeout=0;authentication=NotSpecified;authenticationScheme=nativeAuthentication;xopenStates=false;sendTimeAsDatetime=true;replication=false;trustStoreType=JKS;trustServerCertificate=false;TransparentNetworkIPResolution=true;serverNameAsACE=false;sendStringParametersAsUnicode=true;selectMethod=direct;responseBuffering=adaptive;queryTimeout=-1;packetSize=8000;multiSubnetFailover=false;loginTimeout=15;lockTimeout=-1;lastUpdateCount=true;encrypt=false;disableStatementPooling=true;databaseName=SANKHYA_PROD;columnEncryptionSetting=Disabled;applicationName=SANKHYAW;applicationIntent=readwrite;]]></urlConnection>
+      <jdbcDriver><![CDATA[Microsoft JDBC Driver 9.4 for SQL Server 9.4.1.0]]></jdbcDriver>
+      <DBMS><![CDATA[Microsoft SQL Server - 15.00.4365]]></DBMS>
+    </dbMetadata>
+  </exportInfo>
+  <instances>
+    <instance name="AD_TDPSRENEGPARC" isUpdate="false">
+      <instanceDescription><![CDATA[Renegociação Parceiro]]></instanceDescription>
+      <tableInfo name="AD_TDPSRENEGPARC" sequenceType="M">
+        <category><![CDATA[SEMANAL]]></category>
+        <tableDescription><![CDATA[Renegociação Parceiro]]></tableDescription>
+        <primaryKey>
+          <CODIGO />
+          <CODPARC />
+        </primaryKey>
+      </tableInfo>
+      <fields>
+        <field name="CODPARC" systemField="N" dataType="I" presentationType="P" calculated="N" allowSearch="S" allowDefault="S" visibleOnSearch="S" allowNull="N" size="10">
+          <description><![CDATA[Parceiro]]></description>
+        </field>
+        <field name="CODIGO" systemField="N" dataType="I" presentationType="P" calculated="N" allowSearch="S" allowDefault="S" visibleOnSearch="S" allowNull="N" size="10">
+          <description><![CDATA[Cód. Renegociação]]></description>
+        </field>
+        <field name="CODTIPVENDA" systemField="N" dataType="I" presentationType="P" calculated="N" allowSearch="S" allowDefault="S" visibleOnSearch="S" allowNull="S" size="5">
+          <description><![CDATA[Tipo de Negociação]]></description>
+        </field>
+        <field name="CODBCO" systemField="N" dataType="I" presentationType="P" calculated="N" allowSearch="S" allowDefault="N" visibleOnSearch="S" allowNull="S" size="5">
+          <description><![CDATA[Banco]]></description>
+        </field>
+        <field name="CODCTABCOINT" systemField="N" dataType="I" presentationType="P" calculated="N" allowSearch="S" allowDefault="S" visibleOnSearch="S" allowNull="S" size="5">
+          <description><![CDATA[Conta Bancária]]></description>
+        </field>
+        <field name="VALOR" systemField="N" dataType="F" presentationType="P" calculated="N" allowSearch="N" allowDefault="S" visibleOnSearch="S" allowNull="S">
+          <description><![CDATA[Valor]]></description>
+        </field>
+        <field name="NURENEG" systemField="N" dataType="I" presentationType="P" calculated="N" allowSearch="N" allowDefault="S" visibleOnSearch="S" allowNull="S">
+          <description><![CDATA[Nro Renegociação]]></description>
+        </field>
+        <field name="DHRENEG" systemField="N" dataType="H" presentationType="P" calculated="N" allowSearch="N" allowDefault="S" visibleOnSearch="S" allowNull="S">
+          <description><![CDATA[Data Renegociação]]></description>
+        </field>
+        <field name="CODUSURENEG" systemField="N" dataType="I" presentationType="P" calculated="N" allowSearch="N" allowDefault="S" visibleOnSearch="S" allowNull="S">
+          <description><![CDATA[Usuário Renegociação]]></description>
+        </field>
+        <field name="DTINIRENEG" systemField="N" dataType="H" presentationType="P" calculated="N" allowSearch="N" allowDefault="S" visibleOnSearch="S" allowNull="S">
+          <description><![CDATA[Dt inicio do periodo de reneg]]></description>
+        </field>
+        <field name="DTFIMRENEG" systemField="N" dataType="H" presentationType="P" calculated="N" allowSearch="N" allowDefault="S" visibleOnSearch="S" allowNull="S">
+          <description><![CDATA[Dt fim do periodo de reneg]]></description>
+        </field>
+        <field name="CODEMP" systemField="N" dataType="I" presentationType="P" calculated="N" allowSearch="S" allowDefault="S" visibleOnSearch="S" allowNull="S">
+          <description><![CDATA[Empresa]]></description>
+        </field>
+        <field name="AD_CODBANCO" systemField="N" dataType="I" presentationType="P" calculated="N" allowSearch="N" allowDefault="S" visibleOnSearch="S" allowNull="S" size="5">
+          <description><![CDATA[Banco DPS]]></description>
+        </field>
+        <field name="NURENEG_EXC" systemField="N" dataType="I" presentationType="P" calculated="N" allowSearch="N" allowDefault="S" visibleOnSearch="N" allowNull="S">
+          <description><![CDATA[Nureneg excluido]]></description>
+        </field>
+        <field name="CODUSU_EXC" systemField="N" dataType="I" presentationType="P" calculated="N" allowSearch="N" allowDefault="S" visibleOnSearch="N" allowNull="S">
+          <description><![CDATA[Usuario reneg exclusao]]></description>
+        </field>
+        <field name="DTEXC" systemField="N" dataType="H" presentationType="P" calculated="N" allowSearch="N" allowDefault="S" visibleOnSearch="N" allowNull="S">
+          <description><![CDATA[DT exclusao]]></description>
+        </field>
+        <field name="AD_COBSEMANAL" systemField="N" dataType="I" presentationType="P" calculated="N" allowSearch="N" allowDefault="S" visibleOnSearch="S" allowNull="S" size="5">
+          <description><![CDATA[Tipo Cobrança]]></description>
+        </field>
+        <field name="EMAIL" systemField="N" dataType="S" presentationType="O" calculated="N" allowSearch="N" allowDefault="S" visibleOnSearch="S" allowNull="S">
+          <description><![CDATA[Email enviado]]></description>
+          <options>
+            <option value="S"><![CDATA[Sim]]></option>
+            <option value="N" default="S"><![CDATA[Não]]></option>
+          </options>
+        </field>
+        <field name="BOLETO" systemField="N" dataType="S" presentationType="O" calculated="N" allowSearch="N" allowDefault="S" visibleOnSearch="S" allowNull="S">
+          <description><![CDATA[Boleto Gerado]]></description>
+          <options>
+            <option value="S"><![CDATA[Sim]]></option>
+            <option value="N" default="S"><![CDATA[Não]]></option>
+          </options>
+        </field>
+      </fields>
+      <relationShip>
+        <relation entityName="Parceiro" type="I" insert="N" update="N" remove="N">
+          <targetInfo systemInstance="S" tableName="TGFPAR" />
+          <fields>
+            <field localName="CODPARC" targetName="CODPARC" />
+          </fields>
+        </relation>
+        <relation entityName="TipoTitulo" type="I" insert="N" update="N" remove="N">
+          <targetInfo systemInstance="S" tableName="TGFTIT" />
+          <fields>
+            <field localName="AD_COBSEMANAL" targetName="CODTIPTIT" />
+          </fields>
+        </relation>
+        <relation entityName="TipoNegociacao" type="I" insert="N" update="N" remove="N">
+          <targetInfo systemInstance="S" tableName="TGFTPV" />
+          <expression><![CDATA[@ref-param[force-one-to-one=true]]]></expression>
+          <fields>
+            <field localName="CODTIPVENDA" targetName="CODTIPVENDA" />
+          </fields>
+        </relation>
+        <relation entityName="Banco" type="I" insert="N" update="N" remove="N">
+          <targetInfo systemInstance="S" tableName="TSIBCO" />
+          <fields>
+            <field localName="CODBCO" targetName="CODBCO" />
+          </fields>
+        </relation>
+        <relation entityName="ContaBancaria" type="I" insert="N" update="N" remove="N">
+          <targetInfo systemInstance="S" tableName="TSICTA" />
+          <fields>
+            <field localName="CODCTABCOINT" targetName="CODCTABCOINT" />
+          </fields>
+        </relation>
+        <relation entityName="AD_TDPSRENEGPARCFIN" type="I" insert="N" update="N" remove="S">
+          <targetInfo systemInstance="N" tableName="AD_TDPSRENEGPARCFIN" />
+          <fields>
+            <field localName="CODIGO" targetName="CODIGO" />
+            <field localName="CODPARC" targetName="CODPARC" />
+          </fields>
+        </relation>
+        <relation entityName="AD_TDPSRENEGPARCFINOFIG" type="I" insert="N" update="N" remove="S">
+          <targetInfo systemInstance="N" tableName="AD_TDPSRENEGPARCFINOFIG" />
+          <fields>
+            <field localName="CODIGO" targetName="CODIGO" />
+            <field localName="CODPARC" targetName="CODPARC" />
+          </fields>
+        </relation>
+        <relation entityName="Banco" type="I" insert="N" update="N" remove="N">
+          <targetInfo systemInstance="S" tableName="TSIBCO" />
+          <fields>
+            <field localName="AD_CODBANCO" targetName="CODBCO" />
+          </fields>
+        </relation>
+      </relationShip>
+    </instance>
+    <instance name="AD_TDPSRENEGPARCFIN" isUpdate="false">
+      <instanceDescription><![CDATA[Financeiros Renegociação]]></instanceDescription>
+      <tableInfo name="AD_TDPSRENEGPARCFIN" sequenceType="M">
+        <category><![CDATA[SEMANAL]]></category>
+        <tableDescription><![CDATA[Financeiros Renegociação]]></tableDescription>
+        <primaryKey>
+          <CODIGO />
+          <CODPARC />
+          <NUFIN />
+        </primaryKey>
+      </tableInfo>
+      <fields>
+        <field name="CODIGO" systemField="N" dataType="I" presentationType="P" calculated="N" allowSearch="S" allowDefault="S" visibleOnSearch="S" allowNull="N">
+          <description><![CDATA[Cód. Renegociação]]></description>
+        </field>
+        <field name="CODPARC" systemField="N" dataType="I" presentationType="P" calculated="N" allowSearch="S" allowDefault="S" visibleOnSearch="S" allowNull="N">
+          <description><![CDATA[Parceiro]]></description>
+        </field>
+        <field name="NUFIN" systemField="N" dataType="I" presentationType="P" calculated="N" allowSearch="S" allowDefault="S" visibleOnSearch="S" allowNull="N">
+          <description><![CDATA[Nro Único]]></description>
+        </field>
+        <field name="CODEMP" systemField="N" dataType="I" presentationType="P" calculated="N" allowSearch="S" allowDefault="S" visibleOnSearch="S" allowNull="S" size="5">
+          <description><![CDATA[Empresa]]></description>
+        </field>
+        <field name="CODTIPTIT" systemField="N" dataType="I" presentationType="P" calculated="N" allowSearch="S" allowDefault="S" visibleOnSearch="S" allowNull="S" size="5">
+          <description><![CDATA[Tipo de Título]]></description>
+        </field>
+        <field name="DTNEG" systemField="N" dataType="D" presentationType="P" calculated="N" allowSearch="N" allowDefault="S" visibleOnSearch="S" allowNull="S">
+          <description><![CDATA[Dt Negociação]]></description>
+        </field>
+        <field name="DTVENC" systemField="N" dataType="D" presentationType="P" calculated="N" allowSearch="N" allowDefault="S" visibleOnSearch="S" allowNull="S">
+          <description><![CDATA[Dt. Vencimento]]></description>
+        </field>
+        <field name="NURENEG" systemField="N" dataType="I" presentationType="P" calculated="N" allowSearch="N" allowDefault="S" visibleOnSearch="S" allowNull="S">
+          <description><![CDATA[Renegociação]]></description>
+        </field>
+        <field name="DESDOBRAMENTO" systemField="N" dataType="S" presentationType="P" calculated="N" allowSearch="N" allowDefault="S" visibleOnSearch="S" allowNull="S">
+          <description><![CDATA[Desdob.]]></description>
+        </field>
+        <field name="HISTORICO" systemField="N" dataType="S" presentationType="P" calculated="N" allowSearch="N" allowDefault="S" visibleOnSearch="S" allowNull="S">
+          <description><![CDATA[Histórico]]></description>
+        </field>
+        <field name="VLRDESDOB" systemField="N" dataType="F" presentationType="P" calculated="N" allowSearch="N" allowDefault="S" visibleOnSearch="S" allowNull="S">
+          <description><![CDATA[Valor]]></description>
+        </field>
+        <field name="CODBCO" systemField="N" dataType="I" presentationType="P" calculated="N" allowSearch="S" allowDefault="N" visibleOnSearch="S" allowNull="S" size="5">
+          <description><![CDATA[Banco]]></description>
+        </field>
+        <field name="CODCTABCOINT" systemField="N" dataType="I" presentationType="P" calculated="N" allowSearch="S" allowDefault="S" visibleOnSearch="S" allowNull="S" size="5">
+          <description><![CDATA[Conta Bancária]]></description>
+        </field>
+      </fields>
+      <relationShip>
+        <relation entityName="TipoTitulo" type="I" insert="N" update="N" remove="N">
+          <targetInfo systemInstance="S" tableName="TGFTIT" />
+          <fields>
+            <field localName="CODTIPTIT" targetName="CODTIPTIT" />
+          </fields>
+        </relation>
+        <relation entityName="Empresa" type="I" insert="N" update="N" remove="N">
+          <targetInfo systemInstance="S" tableName="TSIEMP" />
+          <fields>
+            <field localName="CODEMP" targetName="CODEMP" />
+          </fields>
+        </relation>
+        <relation entityName="Banco" type="I" insert="N" update="N" remove="N">
+          <targetInfo systemInstance="S" tableName="TSIBCO" />
+          <expression><![CDATA[EXISTS(SELECT 1 FROM TSICTA CTA WHERE CTA.CODBCO = this.CODBCO)]]></expression>
+          <fields>
+            <field localName="CODBCO" targetName="CODBCO" />
+          </fields>
+        </relation>
+        <relation entityName="ContaBancaria" type="I" insert="N" update="N" remove="N">
+          <targetInfo systemInstance="S" tableName="TSICTA" />
+          <fields>
+            <field localName="CODCTABCOINT" targetName="CODCTABCOINT" />
+          </fields>
+        </relation>
+      </relationShip>
+    </instance>
+    <instance name="AD_TDPSRENEGPARCFINOFIG" isUpdate="false">
+      <instanceDescription><![CDATA[Financeiros Origem]]></instanceDescription>
+      <tableInfo name="AD_TDPSRENEGPARCFINOFIG" sequenceType="M">
+        <category><![CDATA[SEMANAL]]></category>
+        <tableDescription><![CDATA[Financeiros Origem]]></tableDescription>
+        <primaryKey>
+          <CODIGO />
+          <CODPARC />
+          <NUFIN />
+        </primaryKey>
+      </tableInfo>
+      <fields>
+        <field name="CODIGO" systemField="N" dataType="I" presentationType="P" calculated="N" allowSearch="S" allowDefault="S" visibleOnSearch="S" allowNull="N">
+          <description><![CDATA[Cód. Renegociação]]></description>
+        </field>
+        <field name="CODPARC" systemField="N" dataType="I" presentationType="P" calculated="N" allowSearch="S" allowDefault="S" visibleOnSearch="S" allowNull="N">
+          <description><![CDATA[Parceiro]]></description>
+        </field>
+        <field name="NUFIN" systemField="N" dataType="I" presentationType="P" calculated="N" allowSearch="S" allowDefault="S" visibleOnSearch="S" allowNull="N">
+          <description><![CDATA[Nro Único]]></description>
+        </field>
+      </fields>
+    </instance>
+  </instances>
+</metadata>
+

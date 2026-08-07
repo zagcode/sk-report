@@ -1,0 +1,1059 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="danfe_retrato_sub" pageWidth="570" pageHeight="700" columnWidth="570" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" whenResourceMissingType="Empty">
+	<property name="ireport.scriptlethandling" value="0"/>
+	<property name="ireport.encoding" value="ISO-8859-1"/>
+	<property name="ireport.zoom" value="2.9282000000000066"/>
+	<property name="ireport.x" value="287"/>
+	<property name="ireport.y" value="514"/>
+	<property name="ireport.definition"/>
+	<import value="br.com.sankhya.modelcore.comercial.DanfeUtils"/>
+	<import value="com.sankhya.util.StringFormat"/>
+	<import value="net.sf.jasperreports.engine.*"/>
+	<import value="java.util.*"/>
+	<import value="com.sankhya.util.StringUtils"/>
+	<import value="net.sf.jasperreports.engine.data.*"/>
+	<parameter name="IMPITENSNFE" class="java.math.BigDecimal" isForPrompting="false"/>
+	<parameter name="PDIR_MODELO" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA["./"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="PK_ID" class="java.math.BigDecimal" isForPrompting="false"/>
+	<parameter name="PK_SEQUENCIA" class="java.math.BigDecimal" isForPrompting="false"/>
+	<parameter name="SUBREPORT_DIR" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA["./"]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[WITH TABGAR AS (
+    SELECT
+        ISNULL(RITE.NUNOTA, 0) AS NUNOTA,
+		ISNULL(TGFCAB.NUMNOTA, 0) AS NUMNOTACAB,
+		ISNULL(TGFCAB.CHAVENFE, '') AS CHAVENFE,
+
+        ISNULL(TRY_CONVERT(DATETIME, TGFCAB.DTNEG), '1900-01-01 00:00:00') AS DTNEG,
+        ISNULL(TRY_CONVERT(DATETIME, TGFCAB.DTENTSAI), '1900-01-01 00:00:00') AS DTENTSAI,
+        ISNULL(TRY_CONVERT(DATETIME, TGFCAB.HRENTSAI), '1900-01-01 00:00:00') AS HRENTSAI,
+        ISNULL(TRY_CONVERT(DATETIME, TGAR.DHSOL), '1900-01-01 00:00:00') AS DHSOL,
+
+        ISNULL(TGAR.ID, 0) AS ID,
+        ISNULL(TGAR.TIPO, 'Sem Informação') AS TIPOG,
+
+        CASE
+            WHEN TGAR.TIPO = 'G' THEN 'GARANTIA'
+            WHEN TGAR.TIPO = 'D' THEN 'DEVOLUÇÃO'
+            ELSE 'Sem Informação'
+            END AS TIPO,
+
+        ISNULL(RITE.ID, 0) AS ID_RITE,
+        ISNULL(RITE.SEQUENCIA, 0) AS SEQUENCIA_RITE,
+        ISNULL(RITE.CODPROD, 0) AS CODPROD,
+        ISNULL(RITE.DEFEITO, 'Sem Informação') AS DEFEITO,
+        ISNULL(RITE.NUNOTATRAN, 0) AS NUNOTATRAN,
+        ISNULL(RITE.VLRUNIT, 0) AS VLRUNIT_RITE,
+        RITE.QTDNEG AS QTDNEG,
+
+        ISNULL(TGAR.CODPARC, 0) AS CODPARC,
+        ISNULL(PAR.NOMEPARC, 'Sem Informação') AS NOMEPARC,
+        ISNULL(PAR.CGC_CPF, 'Sem Informação') AS CGC_CPF,
+        ISNULL(PAR.IDENTINSCESTAD, 'Sem Informação') AS IDENTINSCESTAD,
+        ISNULL(PAR.TELEFONE, 'Sem Informação') AS TELEFONE,
+        ISNULL(PAR.EMAIL, 'Sem Informação') AS EMAIL,
+        ISNULL(PAR.CEP, 'Sem Informação') AS CEP,
+        ISNULL(PAR.CODEND, 0) AS CODEND,
+        ISNULL(ENDE.NOMEEND, 'Sem Informação') AS NOMEEND,
+        ISNULL(PAR.NUMEND, 'Sem Informação') AS NUMEND,
+        ISNULL(PAR.COMPLEMENTO, 'Sem Informação') AS COMPLEMENTO,
+        ISNULL(PAR.CODBAI, 0) AS CODBAI,
+        ISNULL(BAI.NOMEBAI, 'Sem Informação') AS NOMEBAI,
+        ISNULL(PAR.CODCID, 0) AS CODCID,
+        ISNULL(CID.NOMECID, 'Sem Informação') AS NOMECID,
+        ISNULL(TGAR.OBSERVACAO, 'Sem Informação') AS OBSERVACAO
+
+    FROM AD_TJKCETGAR TGAR
+             LEFT JOIN AD_TJKCERGARITE RITE ON TGAR.ID = RITE.ID
+             LEFT JOIN TGFCAB ON TGFCAB.NUNOTA = RITE.NUNOTA
+             LEFT JOIN TGFPAR PAR ON PAR.CODPARC = TGAR.CODPARC
+             LEFT JOIN TSIEND ENDE ON PAR.CODEND = ENDE.CODEND
+             LEFT JOIN TSIBAI BAI ON PAR.CODBAI = BAI.CODBAI
+             LEFT JOIN TSICID CID ON PAR.CODCID = CID.CODCID
+    /*LEFT JOIN TGFITE ITE ON ITE.NUNOTA = RITE.NUNOTA AND ITE.CODPROD = RITE.CODPROD*/
+
+    WHERE TGAR.ID IN ($P{PK_ID})
+
+),
+
+     TABVAR AS (
+         SELECT * FROM (
+                           SELECT
+                               ITE.SEQUENCIA,
+                               ITE.CODPROD,
+                               (ITE.VLRICMS / NULLIF(ITE.QTDNEG, 0)) AS VLRICMS_UNIT,
+                               (ITE.BASEICMS / NULLIF(ITE.QTDNEG, 0)) AS BASEICMS_UNIT,
+                               ITE.VLRSUBST,
+                               ITE.VLRICMS,
+                               ITE.VLRSUBSTANT,
+                               (ITE.VLRSUBST / NULLIF(ITE.QTDNEG, 0)) AS VLRSUBST_UNIT,
+                               (ITE.VLRUNIT - ITE.VLRDESC) AS VLR_LIQ,
+                               ITE.BASEICMS,
+                               ITE.BASESUBSTITANT,
+                               ITE.BASESUBSTIT,
+                               PRO.REFERENCIA,
+                               ITE.CODCFO,
+                               ITE.CODVOL,
+                               ITE.QTDNEG,
+                               ITE.VLRIPI,
+                               ITE.ALIQIPI,
+                               ITE.NUNOTA,
+                               CFO.DESCRCFO,
+                               LOC.DESCRLOCAL,
+                               CASE
+                                   WHEN (FEMP.VLRLIQITEMNFE IS NOT NULL AND FEMP.VLRLIQITEMNFE = 'S') THEN (ITE.VLRTOT - ITE.VLRDESC - ITE.VLRREPRED)
+                                   ELSE ITE.VLRTOT
+                                   END AS VLRTOT,
+                               CASE
+                                   WHEN (FEMP.VLRLIQITEMNFE IS NOT NULL AND FEMP.VLRLIQITEMNFE = 'S') THEN 0
+                                   ELSE ITE.PERCDESC
+                                   END AS PERCDESC,
+                               CASE
+                                   WHEN (FEMP.VLRLIQITEMNFE IS NOT NULL AND FEMP.VLRLIQITEMNFE = 'S') THEN 0
+                                   ELSE ITE.VLRDESC + ITE.VLRREPRED
+                                   END AS VLRDESC,
+                               CASE
+                                   WHEN (FEMP.VLRLIQITEMNFE IS NOT NULL AND FEMP.VLRLIQITEMNFE = 'S') THEN (ITE.VLRUNIT - (ITE.VLRDESC / NULLIF(ITE.QTDNEG,0)) - (ITE.VLRREPRED / NULLIF(ITE.QTDNEG,0)))
+                                   ELSE ITE.VLRUNIT
+                                   END AS VLRUNIT,
+                               CASE
+                                   WHEN RTRIM(PRO.NCM) IS NOT NULL THEN PRO.NCM
+                                   ELSE IPI.CODFISIPI
+                                   END AS CODFISIPI,
+                               PRO.DESCRPROD,
+                               PRO.DECQTD,
+                               PRO.DECVLR,
+                               FEMP.VLRLIQITEMNFE,
+                               ITE.VLRREPRED,
+                               ITE.CONTROLE,
+                               ROW_NUMBER() OVER (PARTITION BY ITE.NUNOTA, ITE.CODPROD ORDER BY ITE.SEQUENCIA) AS RN
+                           FROM TGFITE ITE
+                                    INNER JOIN TGFCAB CAB ON CAB.NUNOTA = ITE.NUNOTA
+                                    INNER JOIN TGFEMP FEMP ON CAB.CODEMP = FEMP.CODEMP
+                                    INNER JOIN TSIEMP EMP ON EMP.CODEMP = CAB.CODEMP
+                                    INNER JOIN TGFPRO PRO ON ITE.CODPROD = PRO.CODPROD
+                                    LEFT JOIN TGFIPI IPI ON IPI.CODIPI = PRO.CODIPI
+                                    LEFT JOIN TGFCFO CFO ON CFO.CODCFO = ITE.CODCFO,
+                                TGFLOC LOC
+                           WHERE (ITE.NUNOTA IN (
+                               SELECT DISTINCT RITE.NUNOTA FROM AD_TJKCERGARITE RITE WHERE RITE.ID = $P{PK_ID}
+                           ) OR ITE.NUNOTA IN (
+                               SELECT DISTINCT RITE.NUMNOTA FROM AD_TJKCERGARITE RITE WHERE RITE.ID = $P{PK_ID}
+                           ))
+                             AND ITE.CODPROD IN (
+                               SELECT RITE.CODPROD FROM AD_TJKCERGARITE RITE WHERE RITE.ID = $P{PK_ID}
+                           )
+                             AND ITE.SEQUENCIA > 0
+                             AND ITE.CODLOCALORIG = LOC.CODLOCAL
+                             AND (
+                               ITE.USOPROD <> 'D'
+                                   OR NOT EXISTS (
+                                   SELECT 1 FROM TGFVAR VAR
+                                   WHERE VAR.NUNOTA = ITE.NUNOTA AND VAR.NUNOTAORIG = ITE.NUNOTA AND VAR.SEQUENCIAORIG = ITE.SEQUENCIA
+                               )
+                               )
+                       ) SUB WHERE RN = 1
+     ),
+
+	 TABPRO AS (
+		 SELECT *
+		 FROM (
+				  SELECT
+					  RITE.ID AS ID_RITE,
+					  RITE.SEQUENCIA AS SEQUENCIA_RITE,
+					  RITE.NUNOTA,
+					  RITE.NUMNOTA,
+					  COALESCE(ITE.CODEMP, TGAR.CODEMP) AS CODEMP,
+
+					  CASE
+						  WHEN ITE.CODCFO = '5403' THEN '5411'
+						  WHEN ITE.CODCFO = '5102' THEN '5202'
+						  WHEN ITE.CODCFO = '5405' THEN '5411'
+						  ELSE 'Sem informação'
+						  END AS CODCFO,
+
+					  RITE.CODPROD,
+					  PRO.REFERENCIA,
+					  PRO.DESCRPROD,
+					  PRO.NCM,
+
+					  -- ICMS ST com fallback
+					  COALESCE(
+							  CASE
+								  WHEN RITE.NUNOTA = 0 AND RITE.NUMNOTA > 0 THEN GIRO.VL_ICMS_ST
+								  ELSE ITE.VLRICMS
+								  END,
+							  0) AS VLRICMS_ST,
+
+					  -- Valor Total com fallback (exemplo)
+					  COALESCE(
+							  CASE
+								  WHEN RITE.NUNOTA = 0 AND RITE.NUMNOTA > 0 THEN GIRO.VL_TOTAL
+								  ELSE ITE.VLRTOT
+								  END,
+							  0) AS VLRTOT_CORRIGIDO,
+
+					  -- Quantidade com fallback
+					  COALESCE(
+							  CASE
+								  WHEN RITE.NUNOTA = 0 AND RITE.NUMNOTA > 0 THEN GIRO.QT_PEDIDA
+								  ELSE ITE.QTDNEG
+								  END,
+							  0) AS QT_PEDIDA_CORRIGIDA,
+
+					  ROW_NUMBER() OVER (
+						  PARTITION BY RITE.ID, RITE.SEQUENCIA
+						  ORDER BY
+							  CASE WHEN ITE.CODCFO IS NULL THEN 1 ELSE 0 END,
+							  ITE.SEQUENCIA
+						  ) AS RN
+
+				  FROM AD_TJKCERGARITE RITE
+						   JOIN AD_TJKCETGAR TGAR ON TGAR.ID = RITE.ID
+						   JOIN TGFPRO PRO ON PRO.CODPROD = RITE.CODPROD
+						   LEFT JOIN TGFITE ITE ON RITE.NUNOTA = ITE.NUNOTA AND RITE.CODPROD = ITE.CODPROD
+						   LEFT JOIN TGFVAR VAR ON VAR.NUNOTA = ITE.NUNOTA AND VAR.SEQUENCIA = ITE.SEQUENCIA
+						   LEFT JOIN AD_GIRODPS GIRO
+									 ON GIRO.NR_NOTA = RITE.NUMNOTA
+										 AND GIRO.CD_EMPRESA = TGAR.CODEMP
+										 AND GIRO.CODPARC = TGAR.CODPARC
+										 AND GIRO.CODPROD = RITE.CODPROD
+			  ) TP
+		 WHERE TP.RN = 1
+	 ),
+
+     EMPRESA AS (
+         SELECT DISTINCT
+             CAB.CODEMP,
+             EMP.RAZAOSOCIAL AS RAZAOEMP,
+             BAI1.NOMEBAI AS EMPBAI,
+             LTRIM(RTRIM(UPPER(CID1.NOMECID))) AS EMPCID,
+             LTRIM(RTRIM(UFS1.UF)) AS EMPUF,
+             FORMAT(CAST(EMP.CGC AS BIGINT), '00-000-000/0000-00') AS CGCEMP,
+             EMP.INSCESTAD AS INSCESTADEMP,
+             LTRIM(RTRIM(EMP.TELEFONE)) AS TELEFONEEMP,
+             EMP.CEP AS CEPEMP,
+             UPPER(ED1.NOMEEND) AS NOMEENDERECOEMP,
+             UPPER(BAI1.NOMEBAI) AS NOMEBAIRROEMP,
+             EMP.NUMEND AS NUMEROENDEMP,
+             ED1.TIPO AS TIPOEND,
+             EMAIL.EMAIL AS EMAIL_GARANTIA
+         FROM TGFCAB CAB
+                  JOIN TSIEMP EMP ON CAB.CODEMP = EMP.CODEMP
+                  JOIN TSIEND ED1 ON EMP.CODEND = ED1.CODEND
+                  JOIN TSIBAI BAI1 ON EMP.CODBAI = BAI1.CODBAI
+                  JOIN TSICID CID1 ON EMP.CODCID = CID1.CODCID
+                  JOIN TSIUFS UFS1 ON CID1.UF = UFS1.CODUF
+                  LEFT JOIN AD_EMAILEMPRESA EMAIL ON EMAIL.CODEMP = EMP.CODEMP
+     )
+
+SELECT DISTINCT
+    ISNULL(TABGAR.ID_RITE, 0) AS ID_RITE,
+    ISNULL(TABGAR.SEQUENCIA_RITE, 0) AS SEQUENCIA_RITE,
+    ISNULL(TABGAR.ID, 0) AS ID,
+    ISNULL(TABGAR.TIPO, 0) AS TIPO,
+    ISNULL(TRY_CONVERT(DATETIME, TABGAR.DHSOL), '1900-01-01 00:00:00') AS DHSOL,
+    ISNULL(TABGAR.NUNOTA,0) AS NUNOTA,
+    ISNULL(TRY_CONVERT(DATETIME, TABGAR.DTNEG), '1900-01-01 00:00:00') AS DTNEG,
+
+    -- Quantidade final (considerando devolução ou não)
+    CASE
+        WHEN TABGAR.TIPOG = 'D' AND TABGAR.QTDNEG IS NOT NULL THEN TABGAR.QTDNEG
+        WHEN TABGAR.TIPOG <> 'D' AND TABGAR.QTDNEG IS NOT NULL THEN TABGAR.QTDNEG
+        ELSE 1
+        END AS QTDNEG,
+
+    ISNULL(TRY_CONVERT(DATETIME, TABGAR.DTENTSAI), '1900-01-01 00:00:00') AS DTENTSAI,
+    ISNULL(TRY_CONVERT(DATETIME, TABGAR.HRENTSAI), '1900-01-01 00:00:00') AS HRENTSAI,
+
+    ISNULL(TABVAR.VLRDESC,0) AS VLRDESC,
+    ISNULL(TABGAR.VLRUNIT_RITE,0) AS VLRUNIT_RITE,
+
+    CASE
+        WHEN TABGAR.TIPOG = 'D' AND TABGAR.QTDNEG IS NOT NULL
+            THEN TABGAR.QTDNEG * TABGAR.VLRUNIT_RITE
+        ELSE TABGAR.VLRUNIT_RITE
+        END AS VALOR_UNIT_TOTAL,
+
+    ISNULL(TABVAR.VLR_LIQ,0) AS VLR_LIQ,
+    ISNULL(TABVAR.NUNOTA,0) AS NUNOTA,
+
+	ISNULL(TABGAR.NUMNOTACAB,0) AS NUMNOTACAB,
+	ISNULL(TABGAR.CHAVENFE,'') AS CHAVENFE,
+    ISNULL(TABPRO.REFERENCIA,0) AS REFERENCIA,
+    ISNULL(TABPRO.DESCRPROD,0) AS DESCRPROD,
+    ISNULL(TABPRO.CODCFO,0) AS CODCFO,
+    ISNULL(TABPRO.NCM,0) AS NCM,
+
+    -- Impostos
+    ISNULL(TABVAR.BASEICMS,0) AS BASEICMS,
+    ISNULL(TABVAR.VLRICMS,0) AS VLRICMS,
+    ISNULL(TABVAR.BASESUBSTIT,0) AS BASESUBSTIT,
+    ISNULL(TABVAR.VLRSUBST,0) AS VLRSUBST,
+    ISNULL(TABPRO.VLRICMS_ST, 0) AS VLRICMS_ST, -- Aqui com fallback de GIRO aplicado
+
+    CASE
+        WHEN TABGAR.TIPOG = 'D' AND TABGAR.QTDNEG IS NOT NULL
+            THEN TABGAR.QTDNEG * VLRSUBST_UNIT
+        ELSE VLRSUBST_UNIT
+        END AS VLRSUBST_UNIT,
+
+    -- Parceiro
+    ISNULL(TABGAR.CODPARC,0) AS CODPARC,
+    ISNULL(TABGAR.NOMEPARC,'Sem informação') AS NOMEPARC,
+    ISNULL(TABGAR.CGC_CPF,0) AS CGC_CPF,
+    ISNULL(TABGAR.IDENTINSCESTAD,0) AS IDENTINSCESTAD,
+    ISNULL(TABGAR.CEP,0) AS CEP,
+    ISNULL(TABGAR.TELEFONE,0) AS TELEFONE,
+    ISNULL(TABGAR.EMAIL,'Sem informação') AS EMAIL,
+    ISNULL(TABGAR.CODEND,0) AS CODEND,
+    ISNULL(TABGAR.NOMEEND,'Sem informação') AS NOMEEND,
+    ISNULL(TABGAR.NUMEND,0) AS NUMEND,
+    ISNULL(TABGAR.COMPLEMENTO,0) AS COMPLEMENTO,
+    ISNULL(TABGAR.CODBAI,0) AS CODBAI,
+    ISNULL(TABGAR.NOMEBAI,'Sem informação') AS NOMEBAI,
+    ISNULL(TABGAR.CODCID,0) AS CODCID,
+    ISNULL(TABGAR.NOMECID,'Sem informação') AS NOMECID,
+
+    -- Empresa
+    ISNULL(TABPRO.CODEMP,0) AS CODEMP,
+    ISNULL(EMPRESA.RAZAOEMP,'SEM INFORMAÇÃO-DOCUMENTO NÃO FINALIZADO') AS RAZAOEMP,
+    ISNULL(EMPRESA.EMPBAI,0) AS EMPBAI,
+    ISNULL(EMPRESA.EMPCID,0) AS EMPCID,
+    ISNULL(EMPRESA.EMPUF,0) AS EMPUF,
+    ISNULL(EMPRESA.CGCEMP,0) AS CGCEMP,
+    ISNULL(EMPRESA.INSCESTADEMP,0) AS INSCESTADEMP,
+    ISNULL(EMPRESA.TELEFONEEMP,0) AS TELEFONEEMP,
+    ISNULL(EMPRESA.CEPEMP,0) AS CEPEMP,
+    ISNULL(LTRIM(RTRIM(EMPRESA.NOMEENDERECOEMP)),0) AS NOMEENDERECOEMP,
+    ISNULL(EMPRESA.NOMEBAIRROEMP,0) AS NOMEBAIRROEMP,
+    ISNULL(EMPRESA.NUMEROENDEMP,0) AS NUMEROENDEMP,
+    ISNULL(EMPRESA.TIPOEND,0) AS TIPOEND,
+    ISNULL(EMPRESA.EMAIL_GARANTIA,0) AS EMAIL_GARANTIA
+
+FROM TABGAR
+		 LEFT JOIN TABPRO ON TABPRO.ID_RITE = TABGAR.ID_RITE AND TABPRO.SEQUENCIA_RITE = TABGAR.SEQUENCIA_RITE
+         LEFT JOIN TABVAR ON TABVAR.CODPROD = TABGAR.CODPROD AND TABGAR.NUNOTA = TABVAR.NUNOTA
+         LEFT JOIN EMPRESA ON EMPRESA.CODEMP = TABPRO.CODEMP
+
+-- Filtro principal
+WHERE (TABGAR.ID_RITE = $P{PK_ID} OR TABGAR.ID_RITE IS NULL OR TABVAR.NUNOTA IS NULL OR TABGAR.NUNOTA IS NULL OR TABGAR.CODPROD IS NULL)]]>
+	</queryString>
+	<field name="ID_RITE" class="java.lang.Integer"/>
+	<field name="SEQUENCIA_RITE" class="java.lang.Integer"/>
+	<field name="ID" class="java.lang.Integer"/>
+	<field name="TIPO" class="java.lang.String"/>
+	<field name="DHSOL" class="java.sql.Timestamp"/>
+	<field name="NUNOTA" class="java.lang.Integer"/>
+	<field name="DTNEG" class="java.sql.Timestamp"/>
+	<field name="QTDNEG" class="java.lang.Integer"/>
+	<field name="DTENTSAI" class="java.sql.Timestamp"/>
+	<field name="HRENTSAI" class="java.sql.Timestamp"/>
+	<field name="VLRDESC" class="java.lang.Double"/>
+	<field name="VLRUNIT_RITE" class="java.lang.Double"/>
+	<field name="VALOR_UNIT_TOTAL" class="java.lang.Double"/>
+	<field name="VLR_LIQ" class="java.lang.Double"/>
+	<field name="NUMNOTACAB" class="java.lang.Integer"/>
+	<field name="CHAVENFE" class="java.lang.String"/>
+	<field name="REFERENCIA" class="java.lang.String"/>
+	<field name="DESCRPROD" class="java.lang.String"/>
+	<field name="CODCFO" class="java.lang.String"/>
+	<field name="NCM" class="java.lang.String"/>
+	<field name="BASEICMS" class="java.lang.Double"/>
+	<field name="VLRICMS" class="java.lang.Double"/>
+	<field name="BASESUBSTIT" class="java.lang.Double"/>
+	<field name="VLRSUBST" class="java.lang.Double"/>
+	<field name="VLRSUBST_UNIT" class="java.lang.Double"/>
+	<field name="CODPARC" class="java.lang.Integer"/>
+	<field name="NOMEPARC" class="java.lang.String"/>
+	<field name="CGC_CPF" class="java.lang.String"/>
+	<field name="IDENTINSCESTAD" class="java.lang.String"/>
+	<field name="CEP" class="java.lang.String"/>
+	<field name="TELEFONE" class="java.lang.String"/>
+	<field name="EMAIL" class="java.lang.String"/>
+	<field name="CODEND" class="java.lang.Integer"/>
+	<field name="NOMEEND" class="java.lang.String"/>
+	<field name="NUMEND" class="java.lang.String"/>
+	<field name="COMPLEMENTO" class="java.lang.String"/>
+	<field name="CODBAI" class="java.lang.Integer"/>
+	<field name="NOMEBAI" class="java.lang.String"/>
+	<field name="CODCID" class="java.lang.Integer"/>
+	<field name="NOMECID" class="java.lang.String"/>
+	<field name="CODEMP" class="java.lang.Short"/>
+	<field name="RAZAOEMP" class="java.lang.String"/>
+	<field name="EMPBAI" class="java.lang.String"/>
+	<field name="EMPCID" class="java.lang.String"/>
+	<field name="EMPUF" class="java.lang.String"/>
+	<field name="CGCEMP" class="java.lang.String"/>
+	<field name="INSCESTADEMP" class="java.lang.String"/>
+	<field name="TELEFONEEMP" class="java.lang.String"/>
+	<field name="CEPEMP" class="java.lang.String"/>
+	<field name="NOMEENDERECOEMP" class="java.lang.String"/>
+	<field name="NOMEBAIRROEMP" class="java.lang.String"/>
+	<field name="NUMEROENDEMP" class="java.lang.String"/>
+	<field name="TIPOEND" class="java.lang.String"/>
+	<field name="EMAIL_GARANTIA" class="java.lang.String"/>
+	<variable name="PAGE_TOTAL" class="java.lang.Integer" incrementType="Page" calculation="Count">
+		<variableExpression><![CDATA[new Integer( $F{NUNOTA}.intValue() )]]></variableExpression>
+		<initialValueExpression><![CDATA[new Integer( 1 )]]></initialValueExpression>
+	</variable>
+	<group name="PrimeiraPagina">
+		<groupExpression><![CDATA[Boolean.TRUE]]></groupExpression>
+		<groupHeader>
+			<band height="31" splitType="Stretch">
+				<staticText>
+					<reportElement key="staticText-2" mode="Opaque" x="1" y="16" width="60" height="15" backcolor="#CCCCCC"/>
+					<box leftPadding="1">
+						<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="0.25" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Arial" size="7" pdfFontName="Courier"/>
+					</textElement>
+					<text><![CDATA[CÓDIGO]]></text>
+				</staticText>
+				<staticText>
+					<reportElement key="staticText-8" mode="Opaque" x="170" y="16" width="33" height="15" backcolor="#CCCCCC"/>
+					<box leftPadding="1">
+						<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="0.25" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Arial" size="7" pdfFontName="Courier"/>
+					</textElement>
+					<text><![CDATA[NCM/SH]]></text>
+				</staticText>
+				<staticText>
+					<reportElement key="staticText-9" mode="Opaque" x="61" y="16" width="109" height="15" backcolor="#CCCCCC"/>
+					<box leftPadding="1">
+						<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="0.25" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Left" verticalAlignment="Middle">
+						<font fontName="Arial" size="7" pdfFontName="Courier"/>
+					</textElement>
+					<text><![CDATA[DESCRIÇÃO DOS PRODUTOS]]></text>
+				</staticText>
+				<staticText>
+					<reportElement key="staticText-16" mode="Opaque" x="203" y="16" width="22" height="15" backcolor="#CCCCCC"/>
+					<box leftPadding="1">
+						<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="0.25" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Arial" size="7" pdfFontName="Courier"/>
+					</textElement>
+					<text><![CDATA[CFOP]]></text>
+				</staticText>
+				<staticText>
+					<reportElement key="staticText-5" mode="Opaque" x="245" y="16" width="41" height="15" backcolor="#CCCCCC"/>
+					<box leftPadding="1">
+						<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="0.25" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Arial" size="7" pdfFontName="Courier"/>
+					</textElement>
+					<text><![CDATA[VALOR]]></text>
+				</staticText>
+				<staticText>
+					<reportElement key="staticText-14" mode="Opaque" x="225" y="16" width="20" height="15" backcolor="#CCCCCC"/>
+					<box leftPadding="1">
+						<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="0.25" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Arial" size="7" pdfFontName="Courier"/>
+					</textElement>
+					<text><![CDATA[QTD.]]></text>
+				</staticText>
+				<staticText>
+					<reportElement key="staticText-5" mode="Opaque" x="357" y="16" width="32" height="15" backcolor="#CCCCCC"/>
+					<box leftPadding="1">
+						<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="0.25" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Arial" size="7" pdfFontName="Courier"/>
+					</textElement>
+					<text><![CDATA[N.NOTA]]></text>
+				</staticText>
+				<staticText>
+					<reportElement key="staticText-5" mode="Opaque" x="325" y="16" width="32" height="15" backcolor="#CCCCCC"/>
+					<box leftPadding="1">
+						<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="0.25" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Arial" size="7" pdfFontName="Courier"/>
+					</textElement>
+					<text><![CDATA[Vlr.ICMS ST]]></text>
+				</staticText>
+				<staticText>
+					<reportElement key="staticText-5" mode="Opaque" x="551" y="16" width="17" height="15" backcolor="#CCCCCC"/>
+					<box leftPadding="1">
+						<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="0.25" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Arial" size="7" pdfFontName="Courier"/>
+					</textElement>
+					<text><![CDATA[SQ.ITEM]]></text>
+				</staticText>
+				<staticText>
+					<reportElement key="staticText-1" x="6" y="1" width="190" height="12"/>
+					<box leftPadding="1">
+						<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Left" verticalAlignment="Middle">
+						<font fontName="Courier New" size="7" isBold="true" pdfFontName="Courier-Bold"/>
+					</textElement>
+					<text><![CDATA[DADOS DOS PRODUTOS/SERVIÇOS]]></text>
+				</staticText>
+				<staticText>
+					<reportElement key="staticText-5" mode="Opaque" x="286" y="16" width="39" height="15" backcolor="#CCCCCC"/>
+					<box leftPadding="1">
+						<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="0.25" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Arial" size="7" pdfFontName="Courier"/>
+					</textElement>
+					<text><![CDATA[Vlr.TOTAL]]></text>
+				</staticText>
+				<staticText>
+					<reportElement key="staticText-5" mode="Opaque" x="389" y="16" width="162" height="15" backcolor="#CCCCCC"/>
+					<box leftPadding="1">
+						<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="0.25" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Arial" size="7" pdfFontName="Courier"/>
+					</textElement>
+					<text><![CDATA[CHAVE]]></text>
+				</staticText>
+			</band>
+		</groupHeader>
+		<groupFooter>
+			<band splitType="Stretch"/>
+		</groupFooter>
+	</group>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band splitType="Stretch"/>
+	</title>
+	<pageHeader>
+		<band height="104" splitType="Stretch">
+			<textField>
+				<reportElement key="staticText-20" x="6" y="16" width="551" height="16" forecolor="#0000FF"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle" markup="none">
+					<font fontName="Courier New" size="11" isBold="true" pdfFontName="Courier-Bold"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA["SOLICITAÇÃO DE "+$F{TIPO}]]></textFieldExpression>
+			</textField>
+			<rectangle radius="3">
+				<reportElement key="rectangle-50" mode="Transparent" x="2" y="3" width="567" height="42"/>
+			</rectangle>
+			<textField isBlankWhenNull="false">
+				<reportElement key="textField-86" x="13" y="46" width="307" height="15"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Arial" size="9" isBold="true" pdfFontName="Courier-Bold"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{RAZAOEMP}]]></textFieldExpression>
+			</textField>
+			<image onErrorType="Blank">
+				<reportElement x="4" y="5" width="110" height="39"/>
+				<imageExpression class="java.lang.String"><![CDATA["/home/mgeweb/repositorio/imagem/logo/logo_dps.png"]]></imageExpression>
+			</image>
+			<textField isBlankWhenNull="false">
+				<reportElement key="textField-87" x="13" y="61" width="555" height="30"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Arial" size="7" pdfFontName="Courier"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{TIPOEND} + " " + $F{NOMEENDERECOEMP}.trim() + " N." + $F{NUMEROENDEMP} +
+"\nBAIRRO " + $F{NOMEBAIRROEMP} + "," + ($F{EMPCID} !=null ? $F{EMPCID}.trim() : "") + "-" + $F{EMPUF} +
+"\n" + DanfeUtils.formatTelefone("FONE:", $F{TELEFONEEMP} ) +
+( StringUtils.getEmptyAsNull($F{CEP}) != null ? (" CEP:" + $F{CEPEMP}) : ""  )]]></textFieldExpression>
+			</textField>
+			<rectangle radius="10">
+				<reportElement x="440" y="5" width="124" height="38" backcolor="#CCCCCC"/>
+			</rectangle>
+			<textField>
+				<reportElement x="470" y="17" width="78" height="12"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<textFieldExpression class="java.lang.Integer"><![CDATA[$F{ID}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="440" y="5" width="123" height="12"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial" size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[ Solicitação]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="444" y="29" width="26" height="12"/>
+				<textElement verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Data:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="444" y="17" width="26" height="12"/>
+				<textElement verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[N.:]]></text>
+			</staticText>
+			<line>
+				<reportElement x="2" y="95" width="566" height="1"/>
+			</line>
+			<textField>
+				<reportElement x="471" y="29" width="78" height="12"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression class="java.sql.Timestamp"><![CDATA[$F{DHSOL}]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageHeader>
+	<columnHeader>
+		<band height="144" splitType="Stretch">
+			<rectangle radius="3">
+				<reportElement key="rectangle-3" mode="Transparent" x="372" y="66" width="103" height="25"/>
+			</rectangle>
+			<staticText>
+				<reportElement key="staticText-40" x="336" y="12" width="139" height="10"/>
+				<box leftPadding="3"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Arial" size="7" isBold="false" pdfFontName="Courier"/>
+				</textElement>
+				<text><![CDATA[CNPJ/CPF]]></text>
+			</staticText>
+			<rectangle radius="3">
+				<reportElement key="rectangle-5" mode="Transparent" x="475" y="39" width="93" height="25"/>
+			</rectangle>
+			<rectangle radius="3">
+				<reportElement key="rectangle-6" mode="Transparent" x="475" y="12" width="93" height="25"/>
+			</rectangle>
+			<staticText>
+				<reportElement key="staticText-41" x="475" y="12" width="81" height="10"/>
+				<box leftPadding="3"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Arial" size="7" isBold="false" pdfFontName="Courier"/>
+				</textElement>
+				<text><![CDATA[DATA DA EMISSÃO	]]></text>
+			</staticText>
+			<rectangle radius="3">
+				<reportElement key="rectangle-28" mode="Transparent" x="270" y="39" width="137" height="25"/>
+			</rectangle>
+			<rectangle radius="3">
+				<reportElement key="rectangle-4" mode="Transparent" x="475" y="66" width="93" height="25"/>
+			</rectangle>
+			<rectangle radius="3">
+				<reportElement key="rectangle-7" mode="Transparent" x="407" y="39" width="68" height="25"/>
+			</rectangle>
+			<rectangle radius="3">
+				<reportElement key="rectangle-8" mode="Transparent" x="152" y="66" width="220" height="25"/>
+			</rectangle>
+			<rectangle radius="3">
+				<reportElement key="rectangle-29" mode="Transparent" x="336" y="12" width="139" height="25"/>
+			</rectangle>
+			<staticText>
+				<reportElement key="staticText-33" x="372" y="67" width="103" height="10"/>
+				<box leftPadding="3"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Arial" size="7" pdfFontName="Courier"/>
+				</textElement>
+				<text><![CDATA[INSCRIÇÃO ESTADUAL]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-34" x="152" y="67" width="168" height="10"/>
+				<box leftPadding="3"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Arial" size="7" pdfFontName="Courier"/>
+				</textElement>
+				<text><![CDATA[FONE/FAX / EMAIL]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-37" x="270" y="40" width="134" height="10"/>
+				<box leftPadding="3"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Arial" size="7" pdfFontName="Courier"/>
+				</textElement>
+				<text><![CDATA[BAIRRO/DISTRITO]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-38" x="407" y="39" width="68" height="10"/>
+				<box leftPadding="3"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Arial" size="7" pdfFontName="Courier"/>
+				</textElement>
+				<text><![CDATA[CEP]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-39" x="475" y="67" width="81" height="10"/>
+				<box leftPadding="3"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Arial" size="7" pdfFontName="Courier"/>
+				</textElement>
+				<text><![CDATA[HORA DE SAÍDA]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="staticText-42" x="475" y="40" width="81" height="9"/>
+				<box leftPadding="3"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Arial" size="7" pdfFontName="Courier"/>
+				</textElement>
+				<text><![CDATA[DATA ENTRADA/SAÍDA]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="48" y="25" width="288" height="10"/>
+				<textElement verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{NOMEPARC}]]></textFieldExpression>
+			</textField>
+			<textField pattern="">
+				<reportElement x="344" y="23" width="126" height="12"/>
+				<textElement verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[DanfeUtils.formatCgcCpf($F{CGC_CPF})]]></textFieldExpression>
+			</textField>
+			<textField pattern="">
+				<reportElement x="412" y="52" width="58" height="12"/>
+				<textElement verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[DanfeUtils.formatCEP($F{CEP})]]></textFieldExpression>
+			</textField>
+			<textField pattern="" isBlankWhenNull="true">
+				<reportElement x="156" y="78" width="70" height="12"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[DanfeUtils.formatTelefone($F{TELEFONE})]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="271" y="50" width="133" height="12"/>
+				<textElement verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{NOMEBAI}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="13" y="78" width="139" height="12"/>
+				<textElement verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{NOMECID}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="374" y="78" width="100" height="12"/>
+				<textElement verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{IDENTINSCESTAD}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="43" y="25" width="5" height="12"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<text><![CDATA[/]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="230" y="78" width="140" height="12"/>
+				<textElement verticalAlignment="Middle">
+					<font size="6"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{EMAIL}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="226" y="78" width="5" height="12"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<text><![CDATA[/]]></text>
+			</staticText>
+			<rectangle radius="3">
+				<reportElement key="rectangle-27" mode="Transparent" x="5" y="39" width="265" height="25"/>
+			</rectangle>
+			<staticText>
+				<reportElement key="staticText-36" x="5" y="39" width="265" height="10"/>
+				<box leftPadding="3"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Arial" size="7" pdfFontName="Courier"/>
+				</textElement>
+				<text><![CDATA[ENDEREÇO]]></text>
+			</staticText>
+			<rectangle radius="3">
+				<reportElement key="rectangle-25" mode="Transparent" x="5" y="66" width="147" height="25"/>
+			</rectangle>
+			<staticText>
+				<reportElement key="staticText-32" x="5" y="67" width="147" height="10"/>
+				<box leftPadding="3"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Arial" size="7" pdfFontName="Courier"/>
+				</textElement>
+				<text><![CDATA[MUNICÍPIO]]></text>
+			</staticText>
+			<rectangle radius="3">
+				<reportElement key="rectangle-27" mode="Transparent" x="5" y="12" width="331" height="25"/>
+			</rectangle>
+			<staticText>
+				<reportElement key="staticText-31" x="7" y="12" width="249" height="10"/>
+				<box leftPadding="3"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Arial" size="7" isBold="true" pdfFontName="Courier"/>
+				</textElement>
+				<text><![CDATA[NOME/RAZÃO SOCIAL]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="11" y="50" width="259" height="12"/>
+				<textElement verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{NOMEEND}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="7" y="25" width="36" height="10"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression class="java.lang.Integer"><![CDATA[$F{CODPARC}]]></textFieldExpression>
+			</textField>
+			<subreport>
+				<reportElement key="danfe_retrato_sub3_subreport1" x="5" y="95" width="562" height="42"/>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression class="java.lang.String"><![CDATA[$P{SUBREPORT_DIR} + "danfe_retrato_sub3_subreport1.jasper"]]></subreportExpression>
+			</subreport>
+			<staticText>
+				<reportElement key="staticText-1" x="7" y="0" width="190" height="12"/>
+				<box leftPadding="1">
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Courier New" size="7" isBold="true" pdfFontName="Courier-Bold"/>
+				</textElement>
+				<text><![CDATA[INFORMAÇÕES DO CLIENTE]]></text>
+			</staticText>
+			<textField pattern="dd/MM/yyyy">
+				<reportElement x="479" y="49" width="77" height="12"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression class="java.sql.Timestamp"><![CDATA[$F{DTENTSAI}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="479" y="77" width="77" height="12"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression class="java.sql.Timestamp"><![CDATA[$F{HRENTSAI}]]></textFieldExpression>
+			</textField>
+			<textField pattern="dd/MM/yyyy">
+				<reportElement x="479" y="23" width="80" height="12"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression class="java.sql.Timestamp"><![CDATA[$F{DTNEG}]]></textFieldExpression>
+			</textField>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="17" splitType="Stretch">
+			<textField isBlankWhenNull="true">
+				<reportElement x="63" y="0" width="105" height="15"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="SansSerif" size="7"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{DESCRPROD}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="205" y="0" width="18" height="15"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="6"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{CODCFO}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="172" y="0" width="33" height="15"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="6"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{NCM}]]></textFieldExpression>
+			</textField>
+			<textField pattern="¤ #,##0.00" isBlankWhenNull="true">
+				<reportElement x="246" y="0" width="38" height="15"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="6"/>
+				</textElement>
+				<textFieldExpression class="java.lang.Double"><![CDATA[$F{VLRUNIT_RITE}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="2" y="0" width="58" height="15"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="7"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{REFERENCIA}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="358" y="0" width="31" height="15"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="6"/>
+				</textElement>
+				<textFieldExpression class="java.lang.Integer"><![CDATA[$F{NUMNOTACAB}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement x="390" y="0" width="162" height="15"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Courier New" size="6" isBold="true"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{CHAVENFE}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement x="389" y="0" width="1" height="15"/>
+			</line>
+			<line>
+				<reportElement x="245" y="0" width="1" height="15"/>
+			</line>
+			<line>
+				<reportElement x="225" y="0" width="1" height="15"/>
+			</line>
+			<line>
+				<reportElement x="203" y="0" width="1" height="15"/>
+			</line>
+			<line>
+				<reportElement x="170" y="0" width="1" height="15"/>
+			</line>
+			<line>
+				<reportElement x="61" y="0" width="1" height="15"/>
+			</line>
+			<line>
+				<reportElement x="2" y="16" width="567" height="1"/>
+			</line>
+			<line>
+				<reportElement x="1" y="0" width="1" height="15"/>
+			</line>
+			<textField pattern="¤ #,##0.00" isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="326" y="0" width="30" height="15" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="SansSerif" size="6" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Helvetica" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+				</textElement>
+				<textFieldExpression class="java.lang.Double"><![CDATA[$F{VLRSUBST_UNIT}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement x="325" y="0" width="1" height="15"/>
+			</line>
+			<textField>
+				<reportElement x="551" y="0" width="16" height="15"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="6"/>
+				</textElement>
+				<textFieldExpression class="java.lang.Integer"><![CDATA[$F{SEQUENCIA_RITE}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement x="568" y="0" width="1" height="15"/>
+			</line>
+			<textField pattern="" isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="227" y="1" width="16" height="15" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="SansSerif" size="6" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Helvetica" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+				</textElement>
+				<textFieldExpression class="java.lang.Integer"><![CDATA[$F{QTDNEG}]]></textFieldExpression>
+			</textField>
+			<textField pattern="¤ #,##0.00" isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="286" y="1" width="33" height="15" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="SansSerif" size="6" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Helvetica" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+				</textElement>
+				<textFieldExpression class="java.lang.Double"><![CDATA[$F{VALOR_UNIT_TOTAL}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement x="285" y="0" width="1" height="15"/>
+			</line>
+			<line>
+				<reportElement x="357" y="0" width="1" height="15"/>
+			</line>
+			<line>
+				<reportElement x="551" y="0" width="1" height="15"/>
+			</line>
+		</band>
+	</detail>
+	<summary>
+		<band height="96" splitType="Stretch">
+			<rectangle radius="10">
+				<reportElement x="14" y="14" width="242" height="72"/>
+			</rectangle>
+			<staticText>
+				<reportElement x="19" y="16" width="224" height="12"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Arial" size="7" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Informações adicionais]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="271" y="53" width="259" height="16"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<text><![CDATA[Só recebemos garantia, com frete pago ou cortesia]]></text>
+			</staticText>
+			<line>
+				<reportElement x="270" y="52" width="260" height="1"/>
+			</line>
+			<line>
+				<reportElement x="270" y="86" width="260" height="1"/>
+			</line>
+			<subreport>
+				<reportElement key="danfe_retrato_sub3_subreport2" x="18" y="29" width="229" height="48"/>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression class="java.lang.String"><![CDATA[$P{SUBREPORT_DIR} + "danfe_retrato_sub3_subreport2.jasper"]]></subreportExpression>
+			</subreport>
+			<textField>
+				<reportElement x="271" y="66" width="259" height="16"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA["Email: "+$F{EMAIL_GARANTIA}]]></textFieldExpression>
+			</textField>
+		</band>
+	</summary>
+</jasperReport>

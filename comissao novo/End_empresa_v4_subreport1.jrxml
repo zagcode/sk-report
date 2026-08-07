@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="End_empresa_v3_subreport1" language="groovy" pageWidth="555" pageHeight="802" columnWidth="555" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0">
+	<property name="ireport.zoom" value="2.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<property name="ireport.definition"/>
+	<parameter name="CODEMP" class="java.lang.String">
+		<property name="PESQUISA" value="true"/>
+		<property name="NOMETABELA" value="TSIEMP"/>
+		<parameterDescription><![CDATA[Cód.Empresa]]></parameterDescription>
+		<defaultValueExpression><![CDATA[null]]></defaultValueExpression>
+	</parameter>
+	<parameter name="DATA_NEG_INI" class="java.sql.Timestamp">
+		<property name="TGFCAB" value="DTNEG"/>
+		<parameterDescription><![CDATA[DT. de Negociação(inicio)]]></parameterDescription>
+		<defaultValueExpression><![CDATA[null]]></defaultValueExpression>
+	</parameter>
+	<parameter name="DATA_NEG_FIN" class="java.sql.Timestamp">
+		<property name="TGFCAB" value="DTNEG"/>
+		<parameterDescription><![CDATA[Dt. de Negociação(final)]]></parameterDescription>
+		<defaultValueExpression><![CDATA[null]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[SELECT DISTINCT
+
+-- DADOS DA EMPRESA
+    EMP.CODEMP,
+    EMP.RAZAOSOCIAL,
+    BAI1.NOMEBAI AS EMPBAI,
+    TRIM(UPPER(CID1.NOMECID)) AS EMPCID,
+    TRIM(UFS1.UF) AS EMPUF,
+    FORMAT(CAST(EMP.CGC AS BIGINT), '00-000-000/0000-00') AS CGCEMP,
+    EMP.INSCESTAD AS INSCESTADEMP,
+    TRIM(EMP.TELEFONE) AS TELEFONEEMP,
+    EMP.CEP AS CEPEMP,
+    UPPER(ED1.NOMEEND) AS NOMEENDERECOEMP,
+    UPPER(BAI1.NOMEBAI) AS NOMEBAIRROEMP,
+    EMP.NUMEND AS NUMEROENDEMP
+
+FROM
+    TSIEMP EMP
+    LEFT JOIN TSIEND ED1 ON (EMP.CODEND = ED1.CODEND)
+    LEFT JOIN TSIBAI BAI1 ON (EMP.CODBAI = BAI1.CODBAI)
+    LEFT JOIN TSICID CID1 ON (EMP.CODCID = CID1.CODCID)
+    LEFT JOIN TSIUFS UFS1 ON (CID1.UF = UFS1.CODUF)
+
+WHERE
+    EMP.CODEMP IN ($P{CODEMP})]]>
+	</queryString>
+	<field name="CODEMP" class="java.lang.Short"/>
+	<field name="RAZAOSOCIAL" class="java.lang.String"/>
+	<field name="EMPBAI" class="java.lang.String"/>
+	<field name="EMPCID" class="java.lang.String"/>
+	<field name="EMPUF" class="java.lang.String"/>
+	<field name="CGCEMP" class="java.lang.String"/>
+	<field name="INSCESTADEMP" class="java.lang.String"/>
+	<field name="TELEFONEEMP" class="java.lang.String"/>
+	<field name="CEPEMP" class="java.lang.String"/>
+	<field name="NOMEENDERECOEMP" class="java.lang.String"/>
+	<field name="NOMEBAIRROEMP" class="java.lang.String"/>
+	<field name="NUMEROENDEMP" class="java.lang.String"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="57" splitType="Stretch">
+			<textField isBlankWhenNull="false">
+				<reportElement key="textField-87" x="0" y="24" width="381" height="30"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Courier New" size="8" pdfFontName="Courier"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{NOMEENDERECOEMP} + " N." + $F{NUMEROENDEMP} +
+"\nBAIRRO " + $F{EMPBAI} + ", " + ($F{EMPCID} !=null ? $F{EMPCID}.trim() : "") + "-" + $F{EMPUF} +
+"\n" + "FONE:" + $F{TELEFONEEMP}+ " CEP:" + $F{CEPEMP}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="0" y="2" width="381" height="22"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{RAZAOSOCIAL}]]></textFieldExpression>
+			</textField>
+		</band>
+	</title>
+</jasperReport>

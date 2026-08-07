@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<metadata>
+  <exportInfo>
+    <exportTime>08/07/2026 10:10:20</exportTime>
+    <systemVersion>4.35b772</systemVersion>
+    <systemCharSet>ISO-8859-1</systemCharSet>
+    <dbMetadata>
+      <dbUser>sankhya</dbUser>
+      <urlConnection><![CDATA[jdbc:sqlserver://172.30.0.2:1433;connectRetryInterval=10;connectRetryCount=1;maxResultBuffer=-1;sendTemporalDataTypesAsStringForBulkCopy=true;delayLoadingLobs=true;useFmtOnly=false;useBulkCopyForBatchInsert=false;cancelQueryTimeout=-1;sslProtocol=TLS;jaasConfigurationName=SQLJDBCDriver;statementPoolingCacheSize=0;serverPreparedStatementDiscardThreshold=10;enablePrepareOnFirstPreparedStatementCall=false;fips=false;socketTimeout=0;authentication=NotSpecified;authenticationScheme=nativeAuthentication;xopenStates=false;sendTimeAsDatetime=true;replication=false;trustStoreType=JKS;trustServerCertificate=false;TransparentNetworkIPResolution=true;serverNameAsACE=false;sendStringParametersAsUnicode=true;selectMethod=direct;responseBuffering=adaptive;queryTimeout=-1;packetSize=8000;multiSubnetFailover=false;loginTimeout=15;lockTimeout=-1;lastUpdateCount=true;encrypt=false;disableStatementPooling=true;databaseName=SANKHYA_PROD;columnEncryptionSetting=Disabled;applicationName=SANKHYAW;applicationIntent=readwrite;]]></urlConnection>
+      <jdbcDriver><![CDATA[Microsoft JDBC Driver 9.4 for SQL Server 9.4.1.0]]></jdbcDriver>
+      <DBMS><![CDATA[Microsoft SQL Server - 15.00.4365]]></DBMS>
+    </dbMetadata>
+  </exportInfo>
+  <instances>
+    <instance name="AD_TDPSRENEGPARCFINOFIG" isUpdate="false">
+      <instanceDescription><![CDATA[Financeiros Origem]]></instanceDescription>
+      <tableInfo name="AD_TDPSRENEGPARCFINOFIG" sequenceType="M">
+        <category><![CDATA[SEMANAL]]></category>
+        <tableDescription><![CDATA[Financeiros Origem]]></tableDescription>
+        <primaryKey>
+          <CODIGO />
+          <CODPARC />
+          <NUFIN />
+        </primaryKey>
+      </tableInfo>
+      <fields>
+        <field name="CODIGO" systemField="N" dataType="I" presentationType="P" calculated="N" allowSearch="S" allowDefault="S" visibleOnSearch="S" allowNull="N">
+          <description><![CDATA[Cód. Renegociação]]></description>
+        </field>
+        <field name="CODPARC" systemField="N" dataType="I" presentationType="P" calculated="N" allowSearch="S" allowDefault="S" visibleOnSearch="S" allowNull="N">
+          <description><![CDATA[Parceiro]]></description>
+        </field>
+        <field name="NUFIN" systemField="N" dataType="I" presentationType="P" calculated="N" allowSearch="S" allowDefault="S" visibleOnSearch="S" allowNull="N">
+          <description><![CDATA[Nro Único]]></description>
+        </field>
+      </fields>
+    </instance>
+  </instances>
+</metadata>
+

@@ -1,0 +1,305 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Relatorio Semanal_V2" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20">
+	<property name="ireport.zoom" value="1.4641000000000006"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<property name="ireport.definition"/>
+	<import value="com.sankhya.util.*"/>
+	<parameter name="NURENEG" class="java.math.BigDecimal"/>
+	<parameter name="SUBREPORT_DIR" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA["C:\\Users\\Cristian\\OneDrive\\Sankhya\\Clientes\\Parana\\DPS\\"]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[SELECT EMP.CODEMP,
+  UPPER(EMP.RAZAOSOCIAL) AS RAZAOSOCIAL,
+  UPPER(EMP.NOMEFANTASIA) AS NOMEFANTASIA,
+  PAR.CODPARC,
+  PAR.NOMEPARC,
+  PAR.CGC_CPF,
+  PAR.IDENTINSCESTAD,
+  ENDE.TIPO + ' ' + ENDE.NOMEEND + ', ' + PAR.NUMEND + ' ' + PAR.COMPLEMENTO AS ENDERECO,
+  CID.NOMECID,
+  UFS.UF,
+  VEN.APELIDO,
+  CAB.NUMNOTA,
+  CAB.SERIENOTA,
+  CAB.DTNEG,
+  CAB.VLRNOTA
+FROM TGFCAB CAB
+  INNER JOIN TSIEMP EMP ON (CAB.CODEMP = EMP.CODEMP)
+INNER JOIN TGFPAR PAR ON (PAR.CODPARC = (SELECT MAX(CODPARC) FROM TGFFIN WHERE NURENEG = $P{NURENEG}))
+  INNER JOIN TSIEND ENDE ON (ENDE.CODEND = PAR.CODEND)
+  INNER JOIN TSICID CID ON (CID.CODCID = PAR.CODCID)
+  INNER JOIN TSIUFS UFS ON (UFS.CODUF = CID.UF)
+  INNER JOIN TGFVEN VEN ON (VEN.CODVEND = CAB.CODVEND)
+WHERE CAB.NUNOTA IN (SELECT NUNOTA FROM TGFFIN WHERE NURENEG = $P{NURENEG})]]>
+	</queryString>
+	<field name="CODEMP" class="java.lang.Short"/>
+	<field name="RAZAOSOCIAL" class="java.lang.String"/>
+	<field name="NOMEFANTASIA" class="java.lang.String"/>
+	<field name="CODPARC" class="java.lang.Integer"/>
+	<field name="NOMEPARC" class="java.lang.String"/>
+	<field name="CGC_CPF" class="java.lang.String"/>
+	<field name="IDENTINSCESTAD" class="java.lang.String"/>
+	<field name="ENDERECO" class="java.lang.String"/>
+	<field name="NOMECID" class="java.lang.String"/>
+	<field name="UF" class="java.lang.String"/>
+	<field name="APELIDO" class="java.lang.String"/>
+	<field name="NUMNOTA" class="java.math.BigDecimal"/>
+	<field name="SERIENOTA" class="java.lang.String"/>
+	<field name="DTNEG" class="java.sql.Timestamp"/>
+	<field name="VLRNOTA" class="java.math.BigDecimal"/>
+	<variable name="VLRNOTATOTAL" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{VLRNOTA}]]></variableExpression>
+	</variable>
+	<variable name="QTDNOTAS" class="java.math.BigDecimal" calculation="Count">
+		<variableExpression><![CDATA[java.math.BigDecimal.ONE]]></variableExpression>
+	</variable>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="137" splitType="Stretch">
+			<staticText>
+				<reportElement mode="Opaque" x="0" y="-1" width="555" height="20" forecolor="#FFFFFF" backcolor="#999999"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[RELATÓRIO SEMANAL]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="53" width="60" height="15"/>
+				<textElement/>
+				<text><![CDATA[Cliente:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="83" width="60" height="15"/>
+				<textElement/>
+				<text><![CDATA[Cidade:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="68" width="60" height="15"/>
+				<textElement/>
+				<text><![CDATA[Endereço:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="98" width="60" height="15"/>
+				<textElement/>
+				<text><![CDATA[CNPJ:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="219" y="83" width="95" height="15"/>
+				<textElement/>
+				<text><![CDATA[Estado:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="219" y="98" width="95" height="15"/>
+				<textElement/>
+				<text><![CDATA[Inscrição Estadual:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="113" width="60" height="15"/>
+				<textElement/>
+				<text><![CDATA[Vendedor:]]></text>
+			</staticText>
+			<line>
+				<reportElement x="0" y="136" width="555" height="1"/>
+			</line>
+			<textField>
+				<reportElement x="126" y="28" width="311" height="15"/>
+				<textElement textAlignment="Center">
+					<font isBold="true"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{RAZAOSOCIAL} +" - " + $F{NOMEFANTASIA}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="60" y="53" width="296" height="15"/>
+				<textElement/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{CODPARC} + " " + $F{NOMEPARC}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="60" y="68" width="296" height="15"/>
+				<textElement/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{ENDERECO}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="60" y="83" width="159" height="15"/>
+				<textElement/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{NOMECID}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="314" y="83" width="100" height="15"/>
+				<textElement/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{UF}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="60" y="98" width="159" height="15"/>
+				<textElement/>
+				<textFieldExpression class="java.lang.String"><![CDATA[StringUtils.formataCgcCpf($F{CGC_CPF})]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="314" y="98" width="210" height="15"/>
+				<textElement/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{IDENTINSCESTAD}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="60" y="113" width="464" height="15"/>
+				<textElement/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{APELIDO}]]></textFieldExpression>
+			</textField>
+			<image onErrorType="Blank">
+				<reportElement mode="Opaque" x="0" y="-1" width="122" height="45" backcolor="#999999"/>
+				<imageExpression class="java.lang.String"><![CDATA["/home/mgeweb/repositorio/imagem/logo/logo_dps.png"]]></imageExpression>
+			</image>
+		</band>
+	</title>
+	<pageHeader>
+		<band height="36" splitType="Stretch">
+			<staticText>
+				<reportElement mode="Opaque" x="0" y="0" width="555" height="15" backcolor="#CCCCCC"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[FATURAMENTO ACUMULADO]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="73" y="20" width="84" height="15"/>
+				<textElement textAlignment="Center">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Número Nota]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="180" y="20" width="100" height="15"/>
+				<textElement textAlignment="Center">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Emissão]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="296" y="20" width="100" height="15"/>
+				<textElement textAlignment="Right">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Valor]]></text>
+			</staticText>
+			<line>
+				<reportElement x="0" y="35" width="555" height="1"/>
+			</line>
+		</band>
+	</pageHeader>
+	<columnHeader>
+		<band splitType="Stretch"/>
+	</columnHeader>
+	<detail>
+		<band height="15" splitType="Stretch">
+			<textField isBlankWhenNull="true">
+				<reportElement x="73" y="0" width="84" height="15"/>
+				<textElement textAlignment="Center"/>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{NUMNOTA}]]></textFieldExpression>
+			</textField>
+			<textField pattern="dd/MM/yyyy">
+				<reportElement x="180" y="0" width="100" height="15"/>
+				<textElement textAlignment="Center"/>
+				<textFieldExpression class="java.sql.Timestamp"><![CDATA[$F{DTNEG}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00;-#,##0.00">
+				<reportElement x="296" y="0" width="100" height="15"/>
+				<textElement textAlignment="Right"/>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{VLRNOTA}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<columnFooter>
+		<band splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band height="23" splitType="Stretch">
+			<rectangle radius="10">
+				<reportElement x="0" y="3" width="555" height="20" backcolor="#999999"/>
+			</rectangle>
+			<staticText>
+				<reportElement x="6" y="5" width="89" height="15"/>
+				<textElement verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Valor da Fatura:]]></text>
+			</staticText>
+			<textField pattern="#,##0.00;-#,##0.00">
+				<reportElement x="95" y="5" width="88" height="15"/>
+				<textElement verticalAlignment="Middle">
+					<font isBold="true"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{VLRNOTATOTAL}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="229" y="5" width="51" height="15"/>
+				<textElement verticalAlignment="Middle">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Emissão:]]></text>
+			</staticText>
+			<textField pattern="dd/MM/yyyy">
+				<reportElement x="280" y="5" width="100" height="15"/>
+				<textElement verticalAlignment="Middle">
+					<font isBold="true"/>
+				</textElement>
+				<textFieldExpression class="java.util.Date"><![CDATA[new java.util.Date()]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="396" y="5" width="78" height="15"/>
+				<textElement verticalAlignment="Middle">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Qtd. Notas:]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="474" y="5" width="81" height="15"/>
+				<textElement verticalAlignment="Middle">
+					<font isBold="true"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{QTDNOTAS}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement x="0" y="0" width="555" height="1"/>
+			</line>
+		</band>
+	</pageFooter>
+	<summary>
+		<band height="198" splitType="Stretch">
+			<subreport>
+				<reportElement key="Relatorio Semanal_duplicatas" x="0" y="5" width="474" height="24"/>
+				<subreportParameter name="NURENEG">
+					<subreportParameterExpression><![CDATA[$P{NURENEG}]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression class="java.lang.String"><![CDATA[$P{SUBREPORT_DIR} + "Relatorio Semanal_duplicatas.jasper"]]></subreportExpression>
+			</subreport>
+			<subreport>
+				<reportElement key="Relatorio Semanal_v2_acertos" x="0" y="165" width="267" height="29" isRemoveLineWhenBlank="true"/>
+				<subreportParameter name="SUBREPORT_DIR">
+					<subreportParameterExpression><![CDATA[$P{SUBREPORT_DIR}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="NURENEG">
+					<subreportParameterExpression><![CDATA[$P{NURENEG}]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression class="java.lang.String"><![CDATA[$P{SUBREPORT_DIR} + "Relatorio Semanal_v2_acertos.jasper"]]></subreportExpression>
+			</subreport>
+			<subreport>
+				<reportElement key="Relatorio Semanal_v2_acertos2" x="288" y="165" width="267" height="29" isRemoveLineWhenBlank="true"/>
+				<subreportParameter name="SUBREPORT_DIR">
+					<subreportParameterExpression><![CDATA[$P{SUBREPORT_DIR}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="NURENEG">
+					<subreportParameterExpression><![CDATA[$P{NURENEG}]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression class="java.lang.String"><![CDATA[$P{SUBREPORT_DIR} + "Relatorio Semanal_v2_acertos2.jasper"]]></subreportExpression>
+			</subreport>
+			<line>
+				<reportElement x="0" y="160" width="555" height="1"/>
+			</line>
+		</band>
+	</summary>
+</jasperReport>

@@ -1,0 +1,346 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Relatorio Semanal_creditos" language="groovy" pageWidth="555" pageHeight="842" columnWidth="555" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" whenNoDataType="NoPages">
+	<property name="ireport.zoom" value="1.3310000000000013"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<property name="ireport.definition"/>
+	<parameter name="NURENEG" class="java.math.BigDecimal" isForPrompting="false"/>
+	<parameter name="CODPARC" class="java.math.BigDecimal" isForPrompting="false"/>
+	<queryString>
+		<![CDATA[WITH Periodo AS (
+    SELECT TDPS.DTINIRENEG, TDPS.DTFIMRENEG
+    FROM AD_TDPSRENEGPARC TDPS
+    WHERE TDPS.NURENEG = $P{NURENEG}
+),
+-- ORIGEM = Automático: devolução compensada automaticamente (NUCOMPENS) contra um título faturado (CODTIPTIT = 31) do semanal.
+Comp AS (
+    SELECT
+        FIN_COMP.NUCOMPENS,
+        FIN_COMP.NUNOTA,
+        FIN_COMP.VLRDESDOB,
+        ROW_NUMBER() OVER (
+            PARTITION BY FIN_COMP.NUCOMPENS, FIN_COMP.VLRDESDOB
+            ORDER BY FIN_COMP.NUFIN
+        ) AS RN
+    FROM TGFFIN FIN_COMP
+    JOIN TGFCAB DEV
+      ON DEV.NUNOTA = FIN_COMP.NUNOTA
+     AND DEV.TIPMOV = 'D'
+    WHERE FIN_COMP.CODPARC = $P{CODPARC}
+      AND FIN_COMP.NUCOMPENS IS NOT NULL
+),
+Cred AS (
+    SELECT
+        FIN_CRED.NUCOMPENS,
+        FIN_CRED.NUMNOTA,
+        FIN_CRED.NUFIN,
+        FIN_CRED.VLRDESDOB,
+        FIN_CRED.DTNEG,
+        ROW_NUMBER() OVER (
+            PARTITION BY FIN_CRED.NUCOMPENS, FIN_CRED.VLRDESDOB
+            ORDER BY FIN_CRED.NUFIN
+        ) AS RN
+    FROM TGFFIN FIN_CRED
+    WHERE FIN_CRED.CODTIPTIT = 31
+      AND FIN_CRED.RECDESP = 1
+),
+BaseDataAutomatico AS (
+    SELECT
+        DEV.NUMNOTA AS NF_DEVOLUCAO,
+        DEV.VLRNOTA AS TOTAL,
+        Cred.NUMNOTA AS FIN_CRED_NUMNOTA,
+        Cred.VLRDESDOB AS VALOR
+    FROM Comp
+    JOIN Cred
+      ON Cred.NUCOMPENS = Comp.NUCOMPENS
+     AND Cred.VLRDESDOB = Comp.VLRDESDOB
+     AND Cred.RN = Comp.RN
+    JOIN TGFCAB DEV
+      ON DEV.NUNOTA = Comp.NUNOTA
+     AND DEV.TIPMOV = 'D'
+    CROSS JOIN Periodo P
+    WHERE (P.DTINIRENEG IS NULL AND P.DTFIMRENEG IS NULL)
+       OR (Cred.DTNEG >= P.DTINIRENEG AND Cred.DTNEG <= P.DTFIMRENEG)
+),
+CreditoAutomatico AS (
+    SELECT
+        CAST(CAST(NF_DEVOLUCAO AS DECIMAL(18,0)) AS VARCHAR(20)) AS NF_DEVOLUCAO,
+        TOTAL AS VALOR_NF_DEV,
+        CAST(FIN_CRED_NUMNOTA AS DECIMAL(18,0)) AS NF_ABATIMENTO,
+        CASE WHEN (TOTAL < SUM(VALOR)) THEN TOTAL ELSE SUM(VALOR) END AS VALOR_ABATIMENTO
+    FROM BaseDataAutomatico
+    GROUP BY NF_DEVOLUCAO, TOTAL, FIN_CRED_NUMNOTA
+),
+-- Usado para excluir dos buckets "Manual"/"Outros meios" os créditos já contados no bucket "Automático".
+CreditosPorNota AS (
+    SELECT DISTINCT FIN_COMP.NUFIN
+    FROM TGFFIN FIN_COMP
+    JOIN TGFFIN FIN_CRED
+        ON FIN_CRED.NUCOMPENS = FIN_COMP.NUCOMPENS
+     AND FIN_COMP.VLRDESDOB = FIN_CRED.VLRDESDOB
+     AND FIN_COMP.NUFIN <> FIN_CRED.NUFIN
+     AND FIN_CRED.CODTIPTIT = 31
+     AND FIN_CRED.RECDESP = 1
+    LEFT JOIN TGFCAB DEV ON DEV.NUNOTA = FIN_COMP.NUNOTA
+    CROSS JOIN Periodo P
+    WHERE FIN_COMP.CODPARC = $P{CODPARC}
+      AND DEV.NUMNOTA IS NOT NULL
+      AND (
+            (P.DTINIRENEG IS NULL AND P.DTFIMRENEG IS NULL)
+            OR (FIN_CRED.DTNEG >= P.DTINIRENEG AND FIN_CRED.DTNEG < DATEADD(DAY, 1, P.DTFIMRENEG))
+      )
+),
+-- Notas já casadas pelo _fechamento (via crédito de devolução CODTIPTIT = 20), para não duplicar no bucket "Outros meios".
+DevInfoFechamento AS (
+    SELECT X.NUNOTA_ORIG
+    FROM (
+        SELECT DISTINCT
+            FIN_COMP.NUNOTA AS NUNOTA_ORIG
+        FROM TGFFIN FIN_COMP
+        INNER JOIN TGFFIN FIN_CRED
+            ON FIN_CRED.NUCOMPENS = FIN_COMP.NUCOMPENS
+           AND FIN_COMP.VLRDESDOB = FIN_CRED.VLRDESDOB
+           AND FIN_COMP.NUFIN <> FIN_CRED.NUFIN
+           AND FIN_CRED.CODTIPTIT = 20
+        INNER JOIN TGFCAB DEV
+            ON DEV.NUNOTA = FIN_CRED.NUNOTA
+           AND DEV.TIPMOV = 'D'
+        WHERE FIN_COMP.CODPARC = $P{CODPARC}
+
+        UNION ALL
+
+        SELECT DISTINCT
+            FIN_COMP.NUNOTA AS NUNOTA_ORIG
+        FROM TGFFIN FIN_COMP
+        INNER JOIN TGFCAB CAB_ORIG
+            ON CAB_ORIG.NUNOTA = FIN_COMP.NUNOTA
+           AND CAB_ORIG.TIPMOV <> 'D'
+        INNER JOIN TGFFIN FIN_CRED
+            ON FIN_CRED.CODPARC = FIN_COMP.CODPARC
+           AND FIN_CRED.CODTIPTIT = 20
+           AND FIN_CRED.VLRDESDOB = FIN_COMP.VLRDESDOB
+           AND ABS(DATEDIFF(DAY, FIN_COMP.DTNEG, FIN_CRED.DTNEG)) <= 120
+        INNER JOIN TGFCAB DEV
+            ON DEV.NUNOTA = FIN_CRED.NUNOTA
+           AND DEV.TIPMOV = 'D'
+        WHERE FIN_COMP.CODPARC = $P{CODPARC}
+
+        UNION ALL
+
+        SELECT DISTINCT
+            FIN_COMP.NUNOTA AS NUNOTA_ORIG
+        FROM TGFFIN FIN_COMP
+        INNER JOIN TGFCAB CAB_ORIG
+            ON CAB_ORIG.NUNOTA = FIN_COMP.NUNOTA
+           AND CAB_ORIG.TIPMOV <> 'D'
+        INNER JOIN TGFCAB DEV
+            ON DEV.CODPARC = CAB_ORIG.CODPARC
+           AND DEV.TIPMOV = 'D'
+           AND DEV.VLRNOTA = ABS(FIN_COMP.VLRDESDOB)
+           AND ABS(DATEDIFF(DAY, FIN_COMP.DTNEG, DEV.DTNEG)) <= 120
+        WHERE FIN_COMP.CODPARC = $P{CODPARC}
+    ) X
+    GROUP BY X.NUNOTA_ORIG
+),
+-- ORIGEM = Manual: baixa de título de crédito (CODTIPTIT = 20) dada como abatimento manual pelo financeiro.
+BaseBaixasCredManual AS (
+    SELECT
+        B.NUFIN,
+        B.NUDEV,
+        B.NUNOTA AS NUNOTA_DEV,
+        B.NUMNOTA AS NUMNOTA_FIN_DEV,
+        B.VLRDESDOB AS VALOR
+    FROM TGFFIN B
+    CROSS JOIN Periodo P
+    WHERE B.CODPARC = $P{CODPARC}
+      AND B.RECDESP = -1
+      AND B.CODTIPTIT = 20
+      AND B.DHBAIXA IS NOT NULL
+      AND (
+            (P.DTINIRENEG IS NULL AND P.DTFIMRENEG IS NULL)
+            OR (B.DHBAIXA >= P.DTINIRENEG AND B.DHBAIXA < DATEADD(DAY, 1, P.DTFIMRENEG))
+      )
+      AND NOT EXISTS (
+            SELECT 1
+            FROM CreditosPorNota CPN
+            WHERE CPN.NUFIN = B.NUFIN
+      )
+),
+CreditoManual AS (
+    SELECT
+        CAST(CAST(COALESCE(CAB_DEV.NUMNOTA, B.NUMNOTA_FIN_DEV) AS DECIMAL(18,0)) AS VARCHAR(20)) AS NF_DEVOLUCAO,
+        COALESCE(CAB_DEV.VLRNOTA, B.VALOR) AS VALOR_NF_DEV,
+        CAST(CAB_ABAT.NUMNOTA AS DECIMAL(18,0)) AS NF_ABATIMENTO,
+        SUM(B.VALOR) AS VALOR_ABATIMENTO
+    FROM BaseBaixasCredManual B
+    LEFT JOIN TGFCAB CAB_DEV ON CAB_DEV.NUNOTA = B.NUNOTA_DEV
+    LEFT JOIN TGFFIN F ON F.NUDEV = B.NUDEV AND F.RECDESP <> -1
+    LEFT JOIN TGFCAB CAB_ABAT ON CAB_ABAT.NUNOTA = F.NUNOTA
+    GROUP BY
+        CAST(COALESCE(CAB_DEV.NUMNOTA, B.NUMNOTA_FIN_DEV) AS DECIMAL(18,0)),
+        COALESCE(CAB_DEV.VLRNOTA, B.VALOR),
+        CAB_ABAT.NUMNOTA
+),
+-- ORIGEM = Outros meios: baixa que não é boleto (4) nem crédito de devolução (20) — ex.: prêmio/crédito de fornecedor, saldo de sistema anterior.
+-- Só conta se a NOTA em si ainda estiver com título CODTIPTIT = 31 (pendente no lote semanal, mesmo critério do _fechamento) —
+-- caso contrário a nota já foi cobrada/paga individualmente por fora do semanal e não deve gerar "crédito" órfão aqui.
+CreditoOutrosMeios AS (
+    SELECT
+        CAST('Outros meios' AS VARCHAR(20)) AS NF_DEVOLUCAO,
+        CAB.VLRNOTA AS VALOR_NF_DEV,
+        CAST(CAB.NUMNOTA AS DECIMAL(18,0)) AS NF_ABATIMENTO,
+        SUM(ABS(ISNULL(FIN.VLRBAIXA, FIN.VLRDESDOB))) AS VALOR_ABATIMENTO
+    FROM TGFCAB CAB
+    INNER JOIN TGFFIN FIN ON FIN.NUNOTA = CAB.NUNOTA
+    CROSS JOIN Periodo P
+    WHERE CAB.SERIENOTA IS NOT NULL
+      AND CAB.TIPMOV <> 'D'
+      AND CAB.STATUSNFE = 'A'
+      AND FIN.CODPARC = $P{CODPARC}
+      AND FIN.DHBAIXA IS NOT NULL
+      AND FIN.CODTIPTIT <> 4
+      AND FIN.CODTIPTIT <> 20
+      AND FIN.RECDESP <> 0
+      AND (FIN.NURENEG = $P{NURENEG} OR FIN.NURENEG IS NULL)
+      AND (
+            (P.DTINIRENEG IS NULL AND P.DTFIMRENEG IS NULL)
+            OR (FIN.DHBAIXA >= P.DTINIRENEG AND FIN.DHBAIXA < DATEADD(DAY, 1, P.DTFIMRENEG))
+      )
+      AND NOT EXISTS (
+            SELECT 1
+            FROM CreditosPorNota CPN
+            WHERE CPN.NUFIN = FIN.NUFIN
+      )
+      AND NOT EXISTS (
+            SELECT 1
+            FROM DevInfoFechamento DIF
+            WHERE DIF.NUNOTA_ORIG = CAB.NUNOTA
+      )
+      AND EXISTS (
+            SELECT 1
+            FROM TGFFIN FIN31
+            WHERE FIN31.NUNOTA = CAB.NUNOTA
+              AND FIN31.CODTIPTIT = 31
+      )
+    GROUP BY CAB.NUNOTA, CAB.NUMNOTA, CAB.VLRNOTA
+)
+-- Só entram créditos com NF Abatimento vinculada: um crédito sem nota abatida (ex.: crédito manual
+-- ainda não usado) não foi de fato aplicado nesta cobrança e não deve inflar o Total Abatimento —
+-- confirmado pela reconciliação: Valor NF - só os créditos com NF Abatimento = Valor Total a Pagar exato.
+SELECT NF_DEVOLUCAO, VALOR_NF_DEV, NF_ABATIMENTO, VALOR_ABATIMENTO
+FROM (
+    SELECT NF_DEVOLUCAO, VALOR_NF_DEV, NF_ABATIMENTO, VALOR_ABATIMENTO FROM CreditoAutomatico
+    UNION ALL
+    SELECT NF_DEVOLUCAO, VALOR_NF_DEV, NF_ABATIMENTO, VALOR_ABATIMENTO FROM CreditoManual
+    UNION ALL
+    SELECT NF_DEVOLUCAO, VALOR_NF_DEV, NF_ABATIMENTO, VALOR_ABATIMENTO FROM CreditoOutrosMeios
+) R
+WHERE NF_ABATIMENTO IS NOT NULL
+ORDER BY NF_DEVOLUCAO;]]>
+	</queryString>
+	<field name="NF_DEVOLUCAO" class="java.lang.String"/>
+	<field name="VALOR_NF_DEV" class="java.math.BigDecimal"/>
+	<field name="NF_ABATIMENTO" class="java.math.BigDecimal"/>
+	<field name="VALOR_ABATIMENTO" class="java.math.BigDecimal"/>
+	<variable name="VLRTOTALABATIDO" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{VALOR_ABATIMENTO}]]></variableExpression>
+	</variable>
+	<variable name="QTDLANCAMENTOS" class="java.math.BigDecimal" calculation="Count">
+		<variableExpression><![CDATA[java.math.BigDecimal.ONE]]></variableExpression>
+	</variable>
+	<columnHeader>
+		<band height="35">
+			<staticText>
+				<reportElement x="180" y="0" width="176" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[CRÉDITOS APLICADOS]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="20" width="150" height="15"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[NF Devolução]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="155" y="20" width="100" height="15"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Valor NF Dev]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="260" y="19" width="100" height="15"/>
+				<textElement textAlignment="Center">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[NF Abatimento]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="365" y="20" width="150" height="15"/>
+				<textElement textAlignment="Center">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Valor Abatimento]]></text>
+			</staticText>
+			<line>
+				<reportElement x="0" y="34" width="555" height="1"/>
+			</line>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="15" splitType="Stretch">
+			<textField isBlankWhenNull="true">
+				<reportElement x="0" y="0" width="150" height="15"/>
+				<textElement verticalAlignment="Middle"/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{NF_DEVOLUCAO}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00;-#,##0.00" isBlankWhenNull="true">
+				<reportElement x="155" y="0" width="100" height="15"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{VALOR_NF_DEV}]]></textFieldExpression>
+			</textField>
+			<textField pattern="" isBlankWhenNull="true">
+				<reportElement x="260" y="0" width="100" height="15"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{NF_ABATIMENTO}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00;-#,##0.00">
+				<reportElement x="365" y="0" width="150" height="15"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{VALOR_ABATIMENTO}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<columnFooter>
+		<band height="17" splitType="Stretch">
+			<line>
+				<reportElement x="0" y="0" width="555" height="1"/>
+			</line>
+			<staticText>
+				<reportElement x="0" y="2" width="120" height="15"/>
+				<textElement/>
+				<text><![CDATA[Qtde Lançamentos:]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="120" y="2" width="50" height="15"/>
+				<textElement/>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{QTDLANCAMENTOS}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="200" y="2" width="160" height="15"/>
+				<textElement textAlignment="Right">
+					<font size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Total Abatimento:]]></text>
+			</staticText>
+			<textField pattern="#,##0.00;-#,##0.00" isBlankWhenNull="true">
+				<reportElement x="365" y="2" width="150" height="15"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{VLRTOTALABATIDO}]]></textFieldExpression>
+			</textField>
+		</band>
+	</columnFooter>
+</jasperReport>

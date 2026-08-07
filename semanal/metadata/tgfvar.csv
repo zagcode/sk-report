@@ -1,0 +1,12 @@
+﻿NUNOTA;int;no;4;"10   ";"0    ";no;(n/a);(n/a);NULL
+SEQUENCIA;smallint;no;2;"5    ";"0    ";no;(n/a);(n/a);NULL
+NUNOTAORIG;int;no;4;"10   ";"0    ";no;(n/a);(n/a);NULL
+SEQUENCIAORIG;smallint;no;2;"5    ";"0    ";no;(n/a);(n/a);NULL
+QTDATENDIDA;float;no;8;"53   ";NULL;yes;(n/a);(n/a);NULL
+CUSATEND;float;no;8;"53   ";NULL;yes;(n/a);(n/a);NULL
+ORDEMPROD;smallint;no;2;"5    ";"0    ";yes;(n/a);(n/a);NULL
+STATUSNOTA;char;no;1;"     ";"     ";no;no;no;Latin1_General_CI_AI
+FIXACAO;char;no;1;"     ";"     ";yes;no;yes;Latin1_General_CI_AI
+NROMEMORANDO;decimal;no;9;"10   ";"0    ";yes;(n/a);(n/a);NULL
+NROREGEXPORT;varchar;no;12;"     ";"     ";yes;no;yes;Latin1_General_CI_AI
+NROATOCONCDRAW;varchar;no;11;"     ";"     ";yes;no;yes;Latin1_General_CI_AI

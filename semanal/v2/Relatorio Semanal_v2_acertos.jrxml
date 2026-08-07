@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Relatorio Semanal_v2_acertos" language="groovy" pageWidth="270" pageHeight="802" columnWidth="270" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0">
+	<property name="ireport.zoom" value="1.5"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<property name="ireport.definition"/>
+	<parameter name="NURENEG" class="java.math.BigDecimal" isForPrompting="false"/>
+	<queryString>
+		<![CDATA[SELECT
+    CASE WHEN FRE.NUFINORIG <> '0' THEN FRE.NUFINORIG ELSE 0 END AS NUFINORIG,
+    CASE WHEN FRE.NUFINORIG <> '0' THEN FIN.RECDESP ELSE 0 END AS RECDESP,
+    CASE WHEN FRE.NUFINORIG <> '0' THEN FIN.CODPARC ELSE 0 END AS CODPARC,
+    CASE WHEN FRE.NUFINORIG <> '0' THEN FIN.NUMNOTA ELSE 0 END AS NUMNOTA_CREDITO,
+    CASE WHEN FRE.NUFINORIG <> '0' THEN FIN.DTNEG ELSE 0 END AS DTNEG,
+    CASE WHEN FRE.NUFINORIG <> '0' THEN CAB.VLRNOTA ELSE 0 END AS VALOR_CREDITO
+FROM TGFFRE FRE
+JOIN TGFFIN FIN ON FIN.NUFIN = FRE.NUFIN
+JOIN TGFCAB CAB ON CAB.NUNOTA = FIN.NUNOTA
+WHERE FIN.DHBAIXA IS NOT NULL
+  AND FIN.NUCOMPENS IS NOT NULL
+  AND FIN.CODPARC = (SELECT MAX(CODPARC) FROM TGFFIN WHERE NURENEG IN ($P{NURENEG}))
+  AND TIPACERTO = 'C'
+  AND FIN.RECDESP = -1
+  AND FRE.NUFINORIG IS NOT NULL
+ORDER BY FIN.DTNEG;]]>
+	</queryString>
+	<field name="NUFINORIG" class="java.lang.Integer"/>
+	<field name="RECDESP" class="java.lang.Integer"/>
+	<field name="CODPARC" class="java.lang.Integer"/>
+	<field name="NUMNOTA_CREDITO" class="java.lang.Integer"/>
+	<field name="DTNEG" class="java.sql.Timestamp"/>
+	<field name="VALOR_CREDITO" class="java.lang.Double"/>
+	<variable name="VLR_TOTAL" class="java.lang.Double" calculation="Sum">
+		<variableExpression><![CDATA[$F{VALOR_CREDITO}]]></variableExpression>
+	</variable>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<columnHeader>
+		<band height="42" splitType="Stretch">
+			<staticText>
+				<reportElement x="95" y="25" width="75" height="15"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[N. da Nota]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="170" y="25" width="75" height="15"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Vlr.Crédito]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="1" y="4" width="263" height="15" forecolor="#000000" backcolor="#CCCCCC"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle" markup="none">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[NOTAS DE CRÉDITO]]></text>
+			</staticText>
+			<line>
+				<reportElement x="1" y="41" width="260" height="1"/>
+			</line>
+			<staticText>
+				<reportElement x="15" y="25" width="75" height="15"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Data]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="23" splitType="Stretch">
+			<textField pattern="###0">
+				<reportElement x="95" y="2" width="75" height="15"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression class="java.lang.Integer"><![CDATA[$F{NUMNOTA_CREDITO}]]></textFieldExpression>
+			</textField>
+			<textField pattern="¤ #,##0.00">
+				<reportElement x="170" y="2" width="75" height="15"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression class="java.lang.Double"><![CDATA[$F{VALOR_CREDITO}]]></textFieldExpression>
+			</textField>
+			<textField pattern="dd/MM/yyyy">
+				<reportElement x="15" y="2" width="75" height="15"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression class="java.util.Date"><![CDATA[$F{DTNEG}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<lastPageFooter>
+		<band height="23">
+			<line>
+				<reportElement x="1" y="0" width="260" height="1"/>
+			</line>
+			<textField pattern="¤ #,##0.00">
+				<reportElement x="170" y="4" width="75" height="15"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font isBold="true"/>
+				</textElement>
+				<textFieldExpression class="java.lang.Double"><![CDATA[$V{VLR_TOTAL}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="133" y="4" width="37" height="15"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Total:]]></text>
+			</staticText>
+			<line>
+				<reportElement x="1" y="21" width="259" height="1"/>
+			</line>
+		</band>
+	</lastPageFooter>
+</jasperReport>

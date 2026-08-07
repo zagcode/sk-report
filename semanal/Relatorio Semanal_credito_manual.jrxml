@@ -1,0 +1,285 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Relatorio Semanal_credito_manual" language="groovy" pageWidth="555" pageHeight="842" columnWidth="555" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0">
+	<property name="ireport.zoom" value="1.3310000000000013"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<property name="ireport.definition"/>
+	<parameter name="NURENEG" class="java.math.BigDecimal" isForPrompting="false"/>
+	<parameter name="CODPARC" class="java.math.BigDecimal" isForPrompting="false"/>
+	<queryString>
+		<![CDATA[WITH Periodo AS (
+	SELECT TDPS.DTINIRENEG, TDPS.DTFIMRENEG
+	FROM AD_TDPSRENEGPARC TDPS
+	WHERE TDPS.NURENEG = $P{NURENEG}
+),
+CreditosPorNota AS (
+	SELECT DISTINCT FIN_COMP.NUFIN
+	FROM TGFFIN FIN_COMP
+	JOIN TGFFIN FIN_CRED
+		ON FIN_CRED.NUCOMPENS = FIN_COMP.NUCOMPENS
+	 AND FIN_COMP.VLRDESDOB = FIN_CRED.VLRDESDOB
+	 AND FIN_COMP.NUFIN <> FIN_CRED.NUFIN
+	 AND FIN_CRED.CODTIPTIT = 31
+	 AND FIN_CRED.RECDESP = 1
+	LEFT JOIN TGFCAB DEV ON DEV.NUNOTA = FIN_COMP.NUNOTA
+	CROSS JOIN Periodo P
+	WHERE FIN_COMP.CODPARC = $P{CODPARC}
+	  AND DEV.NUMNOTA IS NOT NULL
+	  AND (
+			(P.DTINIRENEG IS NULL AND P.DTFIMRENEG IS NULL)
+			OR (FIN_CRED.DTNEG >= P.DTINIRENEG AND FIN_CRED.DTNEG < DATEADD(DAY, 1, P.DTFIMRENEG))
+	  )
+),
+DevInfoFechamento AS (
+	SELECT X.NUNOTA_ORIG
+	FROM (
+		SELECT DISTINCT
+			FIN_COMP.NUNOTA AS NUNOTA_ORIG
+		FROM TGFFIN FIN_COMP
+		INNER JOIN TGFFIN FIN_CRED
+			ON FIN_CRED.NUCOMPENS = FIN_COMP.NUCOMPENS
+		   AND FIN_COMP.VLRDESDOB = FIN_CRED.VLRDESDOB
+		   AND FIN_COMP.NUFIN <> FIN_CRED.NUFIN
+		   AND FIN_CRED.CODTIPTIT = 20
+		INNER JOIN TGFCAB DEV
+			ON DEV.NUNOTA = FIN_CRED.NUNOTA
+		   AND DEV.TIPMOV = 'D'
+		WHERE FIN_COMP.CODPARC = $P{CODPARC}
+
+		UNION ALL
+
+		SELECT DISTINCT
+			FIN_COMP.NUNOTA AS NUNOTA_ORIG
+		FROM TGFFIN FIN_COMP
+		INNER JOIN TGFCAB CAB_ORIG
+			ON CAB_ORIG.NUNOTA = FIN_COMP.NUNOTA
+		   AND CAB_ORIG.TIPMOV <> 'D'
+		INNER JOIN TGFFIN FIN_CRED
+			ON FIN_CRED.CODPARC = FIN_COMP.CODPARC
+		   AND FIN_CRED.CODTIPTIT = 20
+		   AND FIN_CRED.VLRDESDOB = FIN_COMP.VLRDESDOB
+		   AND ABS(DATEDIFF(DAY, FIN_COMP.DTNEG, FIN_CRED.DTNEG)) <= 120
+		INNER JOIN TGFCAB DEV
+			ON DEV.NUNOTA = FIN_CRED.NUNOTA
+		   AND DEV.TIPMOV = 'D'
+		WHERE FIN_COMP.CODPARC = $P{CODPARC}
+
+		UNION ALL
+
+		SELECT DISTINCT
+			FIN_COMP.NUNOTA AS NUNOTA_ORIG
+		FROM TGFFIN FIN_COMP
+		INNER JOIN TGFCAB CAB_ORIG
+			ON CAB_ORIG.NUNOTA = FIN_COMP.NUNOTA
+		   AND CAB_ORIG.TIPMOV <> 'D'
+		INNER JOIN TGFCAB DEV
+			ON DEV.CODPARC = CAB_ORIG.CODPARC
+		   AND DEV.TIPMOV = 'D'
+		   AND DEV.VLRNOTA = ABS(FIN_COMP.VLRDESDOB)
+		   AND ABS(DATEDIFF(DAY, FIN_COMP.DTNEG, DEV.DTNEG)) <= 120
+		WHERE FIN_COMP.CODPARC = $P{CODPARC}
+	) X
+	GROUP BY X.NUNOTA_ORIG
+),
+BaseBaixasCredManual AS (
+	SELECT
+		B.NUFIN,
+		B.NUDEV,
+		B.NUNOTA AS NUNOTA_DEV,
+		B.NUMNOTA AS NUMNOTA_FIN_DEV,
+		B.VLRDESDOB AS VALOR
+	FROM TGFFIN B
+	CROSS JOIN Periodo P
+	WHERE B.CODPARC = $P{CODPARC}
+	  AND B.RECDESP = -1
+	  AND B.CODTIPTIT = 20
+	  AND B.DHBAIXA IS NOT NULL
+	  AND (
+			(P.DTINIRENEG IS NULL AND P.DTFIMRENEG IS NULL)
+			OR (B.DHBAIXA >= P.DTINIRENEG AND B.DHBAIXA < DATEADD(DAY, 1, P.DTFIMRENEG))
+	  )
+	  AND NOT EXISTS (
+			SELECT 1
+			FROM CreditosPorNota CPN
+			WHERE CPN.NUFIN = B.NUFIN
+	  )
+),
+ResumoCredManual AS (
+	SELECT
+		CAST(COALESCE(CAB_DEV.NUMNOTA, B.NUMNOTA_FIN_DEV) AS DECIMAL(18,0)) AS NF_DEVOLUCAO,
+		COALESCE(CAB_DEV.VLRNOTA, B.VALOR) AS VLR,
+		CAB_ABAT.NUMNOTA AS NOTA,
+		SUM(B.VALOR) AS VLR_SOMADO
+	FROM BaseBaixasCredManual B
+	LEFT JOIN TGFCAB CAB_DEV ON CAB_DEV.NUNOTA = B.NUNOTA_DEV
+	LEFT JOIN TGFFIN F ON F.NUDEV = B.NUDEV AND F.RECDESP <> -1
+	LEFT JOIN TGFCAB CAB_ABAT ON CAB_ABAT.NUNOTA = F.NUNOTA
+	GROUP BY
+		CAST(COALESCE(CAB_DEV.NUMNOTA, B.NUMNOTA_FIN_DEV) AS DECIMAL(18,0)),
+		COALESCE(CAB_DEV.VLRNOTA, B.VALOR),
+		CAB_ABAT.NUMNOTA
+),
+ResumoBaixaOutrosMeios AS (
+	SELECT
+		CAST(NULL AS DECIMAL(18,0)) AS NF_DEVOLUCAO,
+		CAB.VLRNOTA AS VLR,
+		CAB.NUMNOTA AS NOTA,
+		SUM(ABS(ISNULL(FIN.VLRBAIXA, FIN.VLRDESDOB))) AS VLR_SOMADO
+	FROM TGFCAB CAB
+	INNER JOIN TGFFIN FIN ON FIN.NUNOTA = CAB.NUNOTA
+	CROSS JOIN Periodo P
+	WHERE CAB.SERIENOTA IS NOT NULL
+	  AND CAB.TIPMOV <> 'D'
+	  AND CAB.STATUSNFE = 'A'
+	  AND FIN.CODPARC = $P{CODPARC}
+	  AND FIN.DHBAIXA IS NOT NULL
+	  AND FIN.CODTIPTIT <> 4
+	  AND FIN.CODTIPTIT <> 20
+	  AND FIN.RECDESP <> 0
+	  AND (FIN.NURENEG = $P{NURENEG} OR FIN.NURENEG IS NULL)
+	  AND (
+			(P.DTINIRENEG IS NULL AND P.DTFIMRENEG IS NULL)
+			OR (FIN.DHBAIXA >= P.DTINIRENEG AND FIN.DHBAIXA < DATEADD(DAY, 1, P.DTFIMRENEG))
+	  )
+	  AND NOT EXISTS (
+			SELECT 1
+			FROM CreditosPorNota CPN
+			WHERE CPN.NUFIN = FIN.NUFIN
+	  )
+	  AND NOT EXISTS (
+			SELECT 1
+			FROM DevInfoFechamento DIF
+			WHERE DIF.NUNOTA_ORIG = CAB.NUNOTA
+	  )
+	GROUP BY CAB.NUNOTA, CAB.NUMNOTA, CAB.VLRNOTA
+)
+SELECT
+	COALESCE(R.NF_DEVOLUCAO, R.NOTA) AS NF_DEVOLUCAO,
+	R.VLR,
+	R.NOTA,
+	R.VLR_SOMADO
+FROM (
+	SELECT NF_DEVOLUCAO, VLR, NOTA, VLR_SOMADO FROM ResumoCredManual
+	UNION ALL
+	SELECT NF_DEVOLUCAO, VLR, NOTA, VLR_SOMADO FROM ResumoBaixaOutrosMeios
+) R]]>
+	</queryString>
+	<field name="NOTA" class="java.math.BigDecimal"/>
+	<field name="NF_DEVOLUCAO" class="java.math.BigDecimal"/>
+	<field name="VLR_SOMADO" class="java.math.BigDecimal"/>
+	<field name="VLR" class="java.math.BigDecimal"/>
+	<variable name="VLRNOTAABAT" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{VLR_SOMADO}]]></variableExpression>
+	</variable>
+	<variable name="QTDNOTAS" class="java.math.BigDecimal" calculation="DistinctCount">
+		<variableExpression><![CDATA[$F{NF_DEVOLUCAO}]]></variableExpression>
+	</variable>
+	<variable name="VLRTOTAL" class="java.math.BigDecimal" calculation="Sum"/>
+	<columnHeader>
+		<band height="35">
+			<staticText>
+				<reportElement x="180" y="0" width="237" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[CRÉDITOS ABATIDOS MANUALMENTE]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="141" y="20" width="84" height="15"/>
+				<textElement textAlignment="Center">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Valor NF Dev]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="20" width="105" height="15"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[NF Devolução]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="281" y="19" width="100" height="15"/>
+				<textElement textAlignment="Center">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[NF Abatimento]]></text>
+			</staticText>
+			<line>
+				<reportElement x="0" y="34" width="555" height="1"/>
+			</line>
+			<staticText>
+				<reportElement x="444" y="20" width="100" height="15"/>
+				<textElement textAlignment="Center">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Valor Abatimento]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="15" splitType="Stretch">
+			<textField pattern="#,##0.00;-#,##0.00" isBlankWhenNull="true">
+				<reportElement x="141" y="0" width="71" height="15"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{VLR}]]></textFieldExpression>
+			</textField>
+			<textField pattern="">
+				<reportElement x="0" y="0" width="105" height="15"/>
+				<textElement verticalAlignment="Middle"/>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{NF_DEVOLUCAO}]]></textFieldExpression>
+			</textField>
+			<textField pattern="">
+				<reportElement x="281" y="0" width="100" height="15"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{NOTA} == null ? "-" : $F{NOTA}.toPlainString()]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00;-#,##0.00">
+				<reportElement x="444" y="0" width="100" height="15"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{VLR_SOMADO}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<columnFooter>
+		<band height="17" splitType="Stretch">
+			<staticText>
+				<reportElement x="168" y="0" width="113" height="15"/>
+				<textElement textAlignment="Center">
+					<font size="10"/>
+				</textElement>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<textField pattern="#,##0.00;-#,##0.00" isBlankWhenNull="true">
+				<reportElement x="281" y="0" width="100" height="15"/>
+				<textElement textAlignment="Right"/>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="0" y="2" width="60" height="15"/>
+				<textElement/>
+				<text><![CDATA[Qtde Notas:]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="60" y="2" width="81" height="15"/>
+				<textElement/>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{QTDNOTAS}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement x="0" y="0" width="555" height="1"/>
+			</line>
+			<staticText>
+				<reportElement x="396" y="0" width="93" height="15"/>
+				<textElement textAlignment="Center">
+					<font size="10"/>
+				</textElement>
+				<text><![CDATA[Total Abatimento:]]></text>
+			</staticText>
+			<textField pattern="#,##0.00;-#,##0.00" isBlankWhenNull="true">
+				<reportElement x="490" y="0" width="65" height="15"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{VLRNOTAABAT}]]></textFieldExpression>
+			</textField>
+		</band>
+	</columnFooter>
+</jasperReport>

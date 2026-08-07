@@ -1,0 +1,5 @@
+﻿NURENEG;int;no;4;"10   ";"0    ";no;(n/a);(n/a);NULL
+NUFIN;int;no;4;"10   ";"0    ";no;(n/a);(n/a);NULL
+NURENEGORIG;int;no;4;"10   ";"0    ";yes;(n/a);(n/a);NULL
+CODUSU;smallint;no;2;"5    ";"0    ";yes;(n/a);(n/a);NULL
+DHALTER;datetime;no;8;"     ";"     ";yes;(n/a);(n/a);NULL

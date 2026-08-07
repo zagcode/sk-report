@@ -1,0 +1,280 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="relat_tab_preco" language="groovy" pageWidth="842" pageHeight="595" orientation="Landscape" columnWidth="802" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" whenNoDataType="NoPages">
+	<property name="ireport.zoom" value="1.25"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<property name="ireport.definition"/>
+	<style name="zebrado" mode="Opaque" backcolor="#FFFFFF">
+        <conditionalStyle>
+            <conditionExpression><![CDATA[new Boolean($V{REPORT_COUNT}.intValue() % 2 == 0)]]></conditionExpression>
+            <style backcolor="#E8E8E8"/>
+        </conditionalStyle>
+    </style>
+	<parameter name="CODEMP" class="java.math.BigDecimal">
+		<property name="nomeTabela" value="TSIEMP"/>
+		<property name="PESQUISA" value="TRUE"/>
+		<parameterDescription><![CDATA[Empresa]]></parameterDescription>
+	</parameter>
+	<parameter name="TIPO" class="java.lang.String">
+		<property name="nomeTabela" value="AD_TIPOTABELA"/>
+		<property name="PESQUISA" value="TRUE"/>
+		<parameterDescription><![CDATA[Tipo]]></parameterDescription>
+	</parameter>
+	<parameter name="CODMARCA" class="java.math.BigDecimal">
+		<property name="PESQUISA" value="TRUE"/>
+		<property name="nomeTabela" value="TGFMAR"/>
+		<parameterDescription><![CDATA[Marca]]></parameterDescription>
+	</parameter>
+	<parameter name="DTINICIO" class="java.sql.Timestamp">
+		<parameterDescription><![CDATA[Data Inicio da tabela]]></parameterDescription>
+	</parameter>
+	<queryString>
+		<![CDATA[SELECT
+	CAST(PRO.REFERENCIA AS VARCHAR(20)) AS CODITEM,
+	CAST(PRO.MARCA AS VARCHAR(20)) AS MARCA,
+	CAST(ISNULL(EXC.VLRVENDA, 0) AS DECIMAL(19,4)) AS VLRUNIT,
+	CAST(CASE
+			WHEN P.CODEMP IN (1,4,8,9)
+				THEN ISNULL(SANKHYA.AD_GET_VLRSUBST_DPS(P.CODEMP, 721, EXC.CODPROD, ISNULL(EXC.VLRVENDA, 0)), 0)
+			ELSE 0
+		 END AS DECIMAL(19,4)) AS VLRST,
+	CAST(ISNULL(EXC.VLRVENDA, 0) +
+		 CASE
+			WHEN P.CODEMP IN (1,4,8,9)
+				THEN ISNULL(SANKHYA.AD_GET_VLRSUBST_DPS(P.CODEMP, 721, EXC.CODPROD, ISNULL(EXC.VLRVENDA, 0)), 0)
+			ELSE 0
+		 END AS DECIMAL(19,4)) AS VLRVENDA,
+	SUBSTRING(ISNULL(PRO.OBSETIQUETA, ''), 1, 50) AS APLICACAO,
+	SUBSTRING(ISNULL(PRO.DESCRPROD, ''), 1, 30) AS DESCRICAO,
+	EXC.AD_DTINICIO AS DTINICIO,
+	EXC.AD_DTFIM AS DTFIM,
+	EXC.CODPROD AS CODPROD
+FROM TGFEXC EXC
+INNER JOIN TGFPRO PRO ON PRO.CODPROD = EXC.CODPROD
+CROSS APPLY (
+	SELECT
+		CAST($P{CODEMP} AS INT) AS CODEMP,
+		CASE
+			WHEN CAST($P{TIPO} AS CHAR(1)) = 'P' THEN ISNULL(E.AD_CODTABPROMOCAO, 0)
+			WHEN CAST($P{TIPO} AS CHAR(1)) = 'N' THEN ISNULL(E.CODTABCALC, 0)
+			ELSE ISNULL(E.AD_CODTABOFERTA, 0)
+		END AS CODTAB,
+		CONVERT(SMALLDATETIME, CONVERT(CHAR(10), GETDATE(), 103), 103) AS DTVIGOR
+	FROM TGFEMP E
+	WHERE E.CODEMP = CAST($P{CODEMP} AS INT)
+) P
+WHERE EXC.NUTAB = (
+	SELECT TOP 1 T.NUTAB
+	FROM TGFTAB T
+	WHERE T.CODTAB = P.CODTAB
+	  AND T.DTVIGOR <= P.DTVIGOR
+	ORDER BY T.DTVIGOR DESC
+)
+AND (
+    $P{CODMARCA} IS NULL
+    OR PRO.CODMARCA = CAST($P{CODMARCA} AS INT)
+)
+AND ISNULL($P{DTINICIO}, GETDATE()) BETWEEN EXC.AD_DTINICIO AND EXC.AD_DTFIM
+
+--AND P.DTVIGOR BETWEEN EXC.AD_DTINICIO AND EXC.AD_DTFIM
+ORDER BY PRO.MARCA, PRO.REFERENCIA]]>
+	</queryString>
+	<field name="CODITEM" class="java.lang.String"/>
+	<field name="MARCA" class="java.lang.String"/>
+	<field name="VLRUNIT" class="java.math.BigDecimal"/>
+	<field name="VLRST" class="java.math.BigDecimal"/>
+	<field name="VLRVENDA" class="java.math.BigDecimal"/>
+	<field name="APLICACAO" class="java.lang.String"/>
+	<field name="DESCRICAO" class="java.lang.String"/>
+	<field name="DTINICIO" class="java.sql.Timestamp"/>
+	<field name="DTFIM" class="java.sql.Timestamp"/>
+	<field name="CODPROD" class="java.math.BigDecimal"/>
+	<title>
+		<band height="30" splitType="Stretch">
+			<staticText>
+				<reportElement x="0" y="0" width="430" height="20"/>
+				<textElement>
+					<font size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Relatorio Tabela de Preco Promocao]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="430" y="0" width="372" height="20"/>
+				<textElement textAlignment="Right"/>
+				<textFieldExpression class="java.lang.String"><![CDATA["Emp: " + $P{CODEMP} + "  Tipo: " + ($P{TIPO} == null ? "-" : $P{TIPO}) + "  Marca: " + $P{CODMARCA}]]></textFieldExpression>
+			</textField>
+		</band>
+	</title>
+	<columnHeader>
+		<band height="22" splitType="Stretch">
+			<staticText>
+				<reportElement mode="Opaque" x="0" y="2" width="68" height="18" backcolor="#E6E6E6"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[CODITEM]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="70" y="2" width="90" height="18" backcolor="#E6E6E6"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[MARCA]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="162" y="2" width="64" height="18" backcolor="#E6E6E6"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[VLRUNIT]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="228" y="2" width="56" height="18" backcolor="#E6E6E6"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[VLRST]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="286" y="2" width="64" height="18" backcolor="#E6E6E6"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[VLRVENDA]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="356" y="2" width="102" height="18" backcolor="#E6E6E6"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[APLICACAO]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="460" y="2" width="146" height="18" backcolor="#E6E6E6"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[DESCRICAO]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="610" y="2" width="70" height="18" backcolor="#E6E6E6"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[DTINICIO]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="682" y="2" width="70" height="18" backcolor="#E6E6E6"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[DTFIM]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="754" y="2" width="48" height="18" backcolor="#E6E6E6"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[CODPROD]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="18" splitType="Stretch">
+			<textField>
+				<reportElement x="0" y="0" width="68" height="16"/>
+				<box leftPadding="1" rightPadding="2"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{CODITEM} == null ? "-" : $F{CODITEM}.toString()]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="70" y="0" width="90" height="16"/>
+				<box leftPadding="2" rightPadding="2"/>
+				<textElement verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{MARCA} == null ? "-" : $F{MARCA}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00">
+				<reportElement x="162" y="0" width="64" height="16"/>
+				<box leftPadding="1" rightPadding="2"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{VLRUNIT} == null ? "-" : new java.text.DecimalFormat("#,##0.00").format($F{VLRUNIT})]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00">
+				<reportElement x="228" y="0" width="56" height="16"/>
+				<box leftPadding="1" rightPadding="2"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{VLRST} == null ? "-" : new java.text.DecimalFormat("#,##0.00").format($F{VLRST})]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00">
+				<reportElement x="286" y="0" width="64" height="16"/>
+				<box leftPadding="1" rightPadding="2"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{VLRVENDA} == null ? "-" : new java.text.DecimalFormat("#,##0.00").format($F{VLRVENDA})]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="356" y="0" width="102" height="16"/>
+				<box leftPadding="3" rightPadding="2"/>
+				<textElement verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{APLICACAO} == null ? "-" : $F{APLICACAO}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement x="460" y="0" width="146" height="16"/>
+				<box leftPadding="3" rightPadding="2"/>
+				<textElement verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{DESCRICAO} == null ? "-" : $F{DESCRICAO}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="610" y="0" width="70" height="16"/>
+				<box leftPadding="1" rightPadding="1"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{DTINICIO} == null ? "-" : new java.text.SimpleDateFormat("dd/MM/yyyy").format($F{DTINICIO})]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="682" y="0" width="70" height="16"/>
+				<box leftPadding="1" rightPadding="1"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{DTFIM} == null ? "-" : new java.text.SimpleDateFormat("dd/MM/yyyy").format($F{DTFIM})]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="754" y="0" width="48" height="16"/>
+				<box leftPadding="1" rightPadding="2"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{CODPROD} == null ? "-" : $F{CODPROD}.toString()]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<pageFooter>
+		<band height="16" splitType="Stretch">
+			<line>
+				<reportElement x="0" y="0" width="802" height="1"/>
+			</line>
+			<textField>
+				<reportElement x="702" y="1" width="100" height="14"/>
+				<textElement textAlignment="Right">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm").format(new java.util.Date())]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageFooter>
+</jasperReport>

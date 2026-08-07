@@ -1,0 +1,426 @@
+﻿NUNOTA;int;no;4;"10   ";"0    ";no;(n/a);(n/a);NULL
+CODEMP;smallint;no;2;"5    ";"0    ";no;(n/a);(n/a);NULL
+CODCENCUS;int;no;4;"10   ";"0    ";no;(n/a);(n/a);NULL
+NUMNOTA;int;no;4;"10   ";"0    ";no;(n/a);(n/a);NULL
+SERIENOTA;char;no;3;"     ";"     ";yes;no;yes;Latin1_General_CI_AI
+DTNEG;datetime;no;8;"     ";"     ";no;(n/a);(n/a);NULL
+DTFATUR;datetime;no;8;"     ";"     ";yes;(n/a);(n/a);NULL
+DTENTSAI;datetime;no;8;"     ";"     ";yes;(n/a);(n/a);NULL
+DTVAL;datetime;no;8;"     ";"     ";yes;(n/a);(n/a);NULL
+DTMOV;datetime;no;8;"     ";"     ";yes;(n/a);(n/a);NULL
+DTCONTAB;datetime;no;8;"     ";"     ";yes;(n/a);(n/a);NULL
+HRMOV;int;no;4;"10   ";"0    ";yes;(n/a);(n/a);NULL
+CODEMPNEGOC;smallint;no;2;"5    ";"0    ";no;(n/a);(n/a);NULL
+CODPARC;int;no;4;"10   ";"0    ";no;(n/a);(n/a);NULL
+CODCONTATO;int;no;4;"10   ";"0    ";yes;(n/a);(n/a);NULL
+RATEADO;char;no;1;"     ";"     ";no;no;no;Latin1_General_CI_AI
+CODVEICULO;int;no;4;"10   ";"0    ";no;(n/a);(n/a);NULL
+CODTIPOPER;smallint;no;2;"5    ";"0    ";no;(n/a);(n/a);NULL
+DHTIPOPER;datetime;no;8;"     ";"     ";no;(n/a);(n/a);NULL
+TIPMOV;char;no;1;"     ";"     ";no;no;no;Latin1_General_CI_AI
+CODTIPVENDA;smallint;no;2;"5    ";"0    ";no;(n/a);(n/a);NULL
+DHTIPVENDA;datetime;no;8;"     ";"     ";no;(n/a);(n/a);NULL
+NUMCOTACAO;int;no;4;"10   ";"0    ";yes;(n/a);(n/a);NULL
+CODVEND;smallint;no;2;"5    ";"0    ";no;(n/a);(n/a);NULL
+COMISSAO;float;no;8;"53   ";NULL;no;(n/a);(n/a);NULL
+CODMOEDA;smallint;no;2;"5    ";"0    ";no;(n/a);(n/a);NULL
+CODOBSPADRAO;smallint;no;2;"5    ";"0    ";no;(n/a);(n/a);NULL
+OBSERVACAO;text;no;16;"     ";"     ";yes;(n/a);(n/a);Latin1_General_CI_AI
+VLRSEG;float;no;8;"53   ";NULL;yes;(n/a);(n/a);NULL
+VLRICMSSEG;float;no;8;"53   ";NULL;yes;(n/a);(n/a);NULL
+VLRDESTAQUE;float;no;8;"53   ";NULL;yes;(n/a);(n/a);NULL
+VLRJURO;float;no;8;"53   ";NULL;yes;(n/a);(n/a);NULL
+VLRVENDOR;float;no;8;"53   ";NULL;yes;(n/a);(n/a);NULL
+VLROUTROS;float;no;8;"53   ";NULL;yes;(n/a);(n/a);NULL
+VLREMB;float;no;8;"53   ";NULL;yes;(n/a);(n/a);NULL
+VLRICMSEMB;float;no;8;"53   ";NULL;yes;(n/a);(n/a);NULL
+VLRDESCSERV;float;no;8;"53   ";NULL;yes;(n/a);(n/a);NULL
+IPIEMB;float;no;8;"53   ";NULL;yes;(n/a);(n/a);NULL
+TIPIPIEMB;char;no;1;"     ";"     ";no;no;no;Latin1_General_CI_AI
+VLRDESCTOT;float;no;8;"53   ";NULL;yes;(n/a);(n/a);NULL
+VLRDESCTOTITEM;float;no;8;"53   ";NULL;yes;(n/a);(n/a);NULL
+VLRFRETE;float;no;8;"53   ";NULL;yes;(n/a);(n/a);NULL
+ICMSFRETE;float;no;8;"53   ";NULL;yes;(n/a);(n/a);NULL
+BASEICMSFRETE;float;no;8;"53   ";NULL;yes;(n/a);(n/a);NULL
+TIPFRETE;char;no;1;"     ";"     ";no;no;no;Latin1_General_CI_AI
+CIF_FOB;char;no;1;"     ";"     ";yes;no;yes;Latin1_General_CI_AI
+VENCFRETE;datetime;no;8;"     ";"     ";yes;(n/a);(n/a);NULL
+VLRNOTA;float;no;8;"53   ";NULL;yes;(n/a);(n/a);NULL
+VENCIPI;datetime;no;8;"     ";"     ";yes;(n/a);(n/a);NULL
+ORDEMCARGA;int;no;4;"10   ";"0    ";no;(n/a);(n/a);NULL
+SEQCARGA;smallint;no;2;"5    ";"0    ";yes;(n/a);(n/a);NULL
+KMVEICULO;int;no;4;"10   ";"0    ";yes;(n/a);(n/a);NULL
+CODPARCTRANSP;int;no;4;"10   ";"0    ";no;(n/a);(n/a);NULL
+QTDVOL;int;no;4;"10   ";"0    ";yes;(n/a);(n/a);NULL
+PENDENTE;char;no;1;"     ";"     ";no;no;no;Latin1_General_CI_AI
+BASEICMS;float;no;8;"53   ";NULL;yes;(n/a);(n/a);NULL
+VLRICMS;float;no;8;"53   ";NULL;yes;(n/a);(n/a);NULL
+BASEIPI;float;no;8;"53   ";NULL;yes;(n/a);(n/a);NULL
+VLRIPI;float;no;8;"53   ";NULL;yes;(n/a);(n/a);NULL
+ISSRETIDO;char;no;1;"     ";"     ";no;no;no;Latin1_General_CI_AI
+BASEISS;float;no;8;"53   ";NULL;yes;(n/a);(n/a);NULL
+VLRISS;float;no;8;"53   ";NULL;yes;(n/a);(n/a);NULL
+CODUSU;smallint;no;2;"5    ";"0    ";yes;(n/a);(n/a);NULL
+APROVADO;char;no;1;"     ";"     ";no;no;no;Latin1_General_CI_AI
+VLRIRF;float;no;8;"53   ";NULL;yes;(n/a);(n/a);NULL
+IRFRETIDO;char;no;1;"     ";"     ";no;no;no;Latin1_General_CI_AI
+STATUSNOTA;char;no;1;"     ";"     ";no;no;no;Latin1_General_CI_AI
+COMGER;float;no;8;"53   ";NULL;yes;(n/a);(n/a);NULL
+DTALTER;datetime;no;8;"     ";"     ";no;(n/a);(n/a);NULL
+VOLUME;varchar;no;60;"     ";"     ";yes;no;yes;Latin1_General_CI_AI
+CODPARCDEST;int;no;4;"10   ";"0    ";no;(n/a);(n/a);NULL
+VLRSUBST;float;no;8;"53   ";NULL;no;(n/a);(n/a);NULL
+BASESUBSTIT;float;no;8;"53   ";NULL;no;(n/a);(n/a);NULL
+CODPROJ;int;no;4;"10   ";"0    ";no;(n/a);(n/a);NULL
+NUMCONTRATO;int;no;4;"10   ";"0    ";no;(n/a);(n/a);NULL
+BASEINSS;float;no;8;"53   ";NULL;no;(n/a);(n/a);NULL
+VLRINSS;float;no;8;"53   ";NULL;no;(n/a);(n/a);NULL
+VLRREPREDTOT;float;no;8;"53   ";NULL;no;(n/a);(n/a);NULL
+PERCDESC;float;no;8;"53   ";NULL;no;(n/a);(n/a);NULL
+CODPARCREMETENTE;int;no;4;"10   ";"0    ";no;(n/a);(n/a);NULL
+CODPARCCONSIGNATARIO;int;no;4;"10   ";"0    ";no;(n/a);(n/a);NULL
+CODPARCREDESPACHO;int;no;4;"10   ";"0    ";no;(n/a);(n/a);NULL
+LOCALCOLETA;varchar;no;40;"     ";"     ";yes;no;yes;Latin1_General_CI_AI
+LOCALENTREGA;varchar;no;40;"     ";"     ";yes;no;yes;Latin1_General_CI_AI
+VLRMERCADORIA;float;no;8;"53   ";NULL;yes;(n/a);(n/a);NULL
+PESO;float;no;8;"53   ";NULL;yes;(n/a);(n/a);NULL
+NOTASCF;varchar;no;35;"     ";"     ";yes;no;yes;Latin1_General_CI_AI
+CODMODDOC;int;no;4;"10   ";"0    ";no;(n/a);(n/a);NULL
+CODNAT;int;no;4;"10   ";"0    ";no;(n/a);(n/a);NULL
+CODMAQ;int;no;4;"10   ";"0    ";yes;(n/a);(n/a);NULL
+CODFUNC;int;no;4;"10   ";"0    ";yes;(n/a);(n/a);NULL
+NUMOS;int;no;4;"10   ";"0    ";yes;(n/a);(n/a);NULL
+NUMCF;int;no;4;"10   ";"0    ";yes;(n/a);(n/a);NULL
+VLRFRETECPL;float;no;8;"53   ";NULL;yes;(n/a);(n/a);NULL
+TROCO;float;no;8;"53   ";NULL;no;(n/a);(n/a);NULL
+NROREDZ;smallint;no;2;"5    ";"0    ";yes;(n/a);(n/a);NULL
+VLRMOEDA;float;no;8;"53   ";NULL;yes;(n/a);(n/a);NULL
+OCCN48;int;no;4;"10   ";"0    ";yes;(n/a);(n/a);NULL
+CODUSUINC;smallint;no;2;"5    ";"0    ";yes;(n/a);(n/a);NULL
+NUTRANSF;int;no;4;"10   ";"0    ";yes;(n/a);(n/a);NULL
+NURD8;int;no;4;"10   ";"0    ";yes;(n/a);(n/a);NULL
+CODSITE;int;no;4;"10   ";"0    ";yes;(n/a);(n/a);NULL
+TOTALCUSTOPROD;float;no;8;"53   ";NULL;yes;(n/a);(n/a);NULL
+TOTALCUSTOSERV;float;no;8;"53   ";NULL;yes;(n/a);(n/a);NULL
+CODCID;int;no;4;"10   ";"0    ";yes;(n/a);(n/a);NULL
+BASESUBSTSEMRED;float;no;8;"53   ";NULL;yes;(n/a);(n/a);NULL
+CODMOTORISTA;int;no;4;"10   ";"0    ";yes;(n/a);(n/a);NULL
+NATUREZAOPERDES;varchar;no;2;"     ";"     ";yes;no;yes;Latin1_General_CI_AI
+SERIENFDES;varchar;no;4;"     ";"     ";yes;no;yes;Latin1_General_CI_AI
+MODELONFDES;varchar;no;2;"     ";"     ";yes;no;yes;Latin1_General_CI_AI
+CODUSUCOMPRADOR;smallint;no;2;"5    ";"0    ";yes;(n/a);(n/a);NULL
+DTPREVENT;datetime;no;8;"     ";"     ";yes;(n/a);(n/a);NULL
+NUNOTAPEDFRET;int;no;4;"10   ";"0    ";yes;(n/a);(n/a);NULL
+BASEIRF;float;no;8;"53   ";NULL;yes;(n/a);(n/a);NULL
+ALIQIRF;float;no;8;"53   ";NULL;yes;(n/a);(n/a);NULL
+PLACA;char;no;10;"     ";"     ";yes;no;yes;Latin1_General_CI_AI
+UFVEICULO;smallint;no;2;"5    ";"0    ";yes;(n/a);(n/a);NULL
+PESOBRUTO;float;no;8;"53   ";NULL;yes;(n/a);(n/a);NULL
+HRENTSAI;datetime;no;8;"     ";"     ";yes;(n/a);(n/a);NULL
+ANTT;char;no;20;"     ";"     ";yes;no;yes;Latin1_General_CI_AI
+LACRES;char;no;255;"     ";"     ";yes;no;yes;Latin1_General_CI_AI
+DANFE;int;no;4;"10   ";"0    ";yes;(n/a);(n/a);NULL
+CHAVENFE;char;no;44;"     ";"     ";yes;no;yes;Latin1_General_CI_AI
+NUMERACAOVOLUMES;char;no;60;"     ";"     ";yes;no;yes;Latin1_General_CI_AI
+DTENVIOPMB;datetime;no;8;"     ";"     ";yes;(n/a);(n/a);NULL
+TIPNOTAPMB;char;no;10;"     ";"     ";yes;no;yes;Latin1_General_CI_AI
+NUMALEATORIO;int;no;4;"10   ";"0    ";yes;(n/a);(n/a);NULL
+NUMPROTOC;varchar;no;30;"     ";"     ";yes;no;yes;Latin1_General_CI_AI
+DHPROTOC;datetime;no;8;"     ";"     ";yes;(n/a);(n/a);NULL
+DTENVSUF;datetime;no;8;"     ";"     ";yes;(n/a);(n/a);NULL
+NULOTENFE;int;no;4;"10   ";"0    ";yes;(n/a);(n/a);NULL
+STATUSNFE;char;no;1;"     ";"     ";yes;no;yes;Latin1_General_CI_AI
+TPEMISNFE;smallint;no;2;"5    ";"0    ";yes;(n/a);(n/a);NULL
+DTADIAM;datetime;no;8;"     ";"     ";yes;(n/a);(n/a);NULL
+HRADIAM;int;no;4;"10   ";"0    ";yes;(n/a);(n/a);NULL
+CODDOCA;int;no;4;"10   ";"0    ";yes;(n/a);(n/a);NULL
+DIGITAL;text;no;16;"     ";"     ";yes;(n/a);(n/a);Latin1_General_CI_AI
+TOTDISPDESC;float;no;8;"53   ";NULL;yes;(n/a);(n/a);NULL
+BASEPIS;float;no;8;"53   ";NULL;yes;(n/a);(n/a);NULL
+VLRPIS;float;no;8;"53   ";NULL;yes;(n/a);(n/a);NULL
+BASEPISST;float;no;8;"53   ";NULL;yes;(n/a);(n/a);NULL
+VLRPISST;float;no;8;"53   ";NULL;yes;(n/a);(n/a);NULL
+BASECOFINS;float;no;8;"53   ";NULL;yes;(n/a);(n/a);NULL
+VLRCOFINS;float;no;8;"53   ";NULL;yes;(n/a);(n/a);NULL
+BASECOFINSST;float;no;8;"53   ";NULL;yes;(n/a);(n/a);NULL
+VLRCOFINSST;float;no;8;"53   ";NULL;yes;(n/a);(n/a);NULL
+VLRROYALT;float;no;8;"53   ";NULL;yes;(n/a);(n/a);NULL
+NROCAIXA;int;no;4;"10   ";"0    ";yes;(n/a);(n/a);NULL
+NUMREGDPEC;varchar;no;15;"     ";"     ";yes;no;yes;Latin1_General_CI_AI
+DHREGDPEC;datetime;no;8;"     ";"     ";yes;(n/a);(n/a);NULL
+TPLIGACAO;smallint;no;2;"5    ";"0    ";yes;(n/a);(n/a);NULL
+CODGRUPOTENSAO;varchar;no;2;"     ";"     ";yes;yes;yes;Latin1_General_CI_AI
+TPASSINANTE;smallint;no;2;"5    ";"0    ";yes;(n/a);(n/a);NULL
+CODEMPFUNC;smallint;no;2;"5    ";"0    ";yes;(n/a);(n/a);NULL
+VLRINDENIZ;float;no;8;"53   ";NULL;yes;(n/a);(n/a);NULL
+MARCA;varchar;no;60;"     ";"     ";yes;no;yes;Latin1_General_CI_AI
+TIPOPTAGJNFE;int;no;4;"10   ";"0    ";yes;(n/a);(n/a);NULL
+TPEMISNFSE;smallint;no;2;"5    ";"0    ";yes;(n/a);(n/a);NULL
+NULOTENFSE;int;no;4;"10   ";"0    ";yes;(n/a);(n/a);NULL
+NUMNFSE;varchar;no;20;"     ";"     ";yes;yes;yes;Latin1_General_CI_AI
+STATUSNFSE;varchar;no;1;"     ";"     ";yes;yes;yes;Latin1_General_CI_AI
+UFEMBARQ;varchar;no;2;"     ";"     ";yes;yes;yes;Latin1_General_CI_AI
+LOCEMBARQ;varchar;no;60;"     ";"     ";yes;yes;yes;Latin1_General_CI_AI
+NUREM;int;no;4;"10   ";"0    ";yes;(n/a);(n/a);NULL
+RETDATACRITICA;varchar;no;1;"     ";"     ";yes;yes;yes;Latin1_General_CI_AI
+QTDBATIDAS;float;no;8;"53   ";NULL;yes;(n/a);(n/a);NULL
+PERCPUREZA;float;no;8;"53   ";NULL;yes;(n/a);(n/a);NULL
+PERCGERMIN;float;no;8;"53   ";NULL;yes;(n/a);(n/a);NULL
+FRETEVLRBRUTO;float;no;8;"53   ";NULL;yes;(n/a);(n/a);NULL
+FRETEVLRDESC;float;no;8;"53   ";NULL;yes;(n/a);(n/a);NULL
+FRETEPERCDESC;float;no;8;"53   ";NULL;yes;(n/a);(n/a);NULL
+FRETEVLRIMP;float;no;8;"53   ";NULL;yes;(n/a);(n/a);NULL
+FRETEVLRJUR;float;no;8;"53   ";NULL;yes;(n/a);(n/a);NULL
+FRETEVLRPAGO;float;no;8;"53   ";NULL;yes;(n/a);(n/a);NULL
+CODVENDTEC;smallint;no;2;"5    ";"0    ";yes;(n/a);(n/a);NULL
+NUMPEDIDO;int;no;4;"10   ";"0    ";yes;(n/a);(n/a);NULL
+VLRINDENIZDIST;float;no;8;"53   ";NULL;yes;(n/a);(n/a);NULL
+NUMPEDIDO2;varchar;no;15;"     ";"     ";yes;yes;yes;Latin1_General_CI_AI
+CODAGENDA;int;no;4;"10   ";"0    ";yes;(n/a);(n/a);NULL
+DTREF;datetime;no;8;"     ";"     ";yes;(n/a);(n/a);NULL
+AGRUPBOL;varchar;no;1;"     ";"     ";yes;yes;yes;Latin1_General_CI_AI
+FRETEVLRNEGOC;float;no;8;"53   ";NULL;yes;(n/a);(n/a);NULL
+CODPRODPERMUTA;int;no;4;"10   ";"0    ";yes;(n/a);(n/a);NULL
+NROGAR;int;no;4;"10   ";"0    ";yes;(n/a);(n/a);NULL
+MD5PAF;varchar;no;32;"     ";"     ";yes;yes;yes;Latin1_General_CI_AI
+CODMODDOCNOTA;int;no;4;"10   ";"0    ";yes;(n/a);(n/a);NULL
+CPFCNPJADQUIRENTE;varchar;no;14;"     ";"     ";yes;yes;yes;Latin1_General_CI_AI
+NOMEADQUIRENTE;varchar;no;40;"     ";"     ";yes;yes;yes;Latin1_General_CI_AI
+VLRSACADOLAR;float;no;8;"53   ";NULL;yes;(n/a);(n/a);NULL
+NUMCOO;int;no;4;"10   ";"0    ";yes;(n/a);(n/a);NULL
+ORDEMCARGAANT;int;no;4;"10   ";"0    ";yes;(n/a);(n/a);NULL
+TPAMBNFE;varchar;no;1;"     ";"     ";yes;yes;yes;Latin1_General_CI_AI
+PRZMED;int;no;4;"10   ";"0    ";yes;(n/a);(n/a);NULL
+CODRESIDUO;int;no;4;"10   ";"0    ";yes;(n/a);(n/a);NULL
+DTREF2;datetime;no;8;"     ";"     ";yes;(n/a);(n/a);NULL
+VLRLIQITEMNFE;char;no;1;"     ";"     ";yes;yes;yes;Latin1_General_CI_AI
+CLASCONS;varchar;no;2;"     ";"     ";yes;yes;yes;Latin1_General_CI_AI
+NUMFORM;int;no;4;"10   ";"0    ";yes;(n/a);(n/a);NULL
+DTREF3;datetime;no;8;"     ";"     ";yes;(n/a);(n/a);NULL
+CODCC;int;no;4;"10   ";"0    ";yes;(n/a);(n/a);NULL
+PRODUETLOC;char;no;1;"     ";"     ";yes;yes;yes;Latin1_General_CI_AI
+VLRSTEXTRANOTATOT;float;no;8;"53   ";NULL;yes;(n/a);(n/a);NULL
+NUTRANEMP;int;no;4;"10   ";"0    ";yes;(n/a);(n/a);NULL
+SITESPECIALRESP;varchar;no;2;"     ";"     ";yes;yes;yes;Latin1_General_CI_AI
+DTENTSAIINFO;datetime;no;8;"     ";"     ";yes;(n/a);(n/a);NULL
+EXIGEISSQN;varchar;no;2;"     ";"     ";yes;yes;yes;Latin1_General_CI_AI
+REGESPTRIBUT;varchar;no;2;"     ";"     ";yes;yes;yes;Latin1_General_CI_AI
+MOTNAORETERISSQN;varchar;no;2;"     ";"     ";yes;yes;yes;Latin1_General_CI_AI
+DTREMRET;datetime;no;8;"     ";"     ";yes;(n/a);(n/a);NULL
+LIBCONF;char;no;1;"     ";"     ";yes;yes;yes;Latin1_General_CI_AI
+NUCONFATUAL;int;no;4;"10   ";"0    ";yes;(n/a);(n/a);NULL
+STATUSXTRATEGIE;varchar;no;1;"     ";"     ";yes;yes;yes;Latin1_General_CI_AI
+CODSAF;int;no;4;"10   ";"0    ";yes;(n/a);(n/a);NULL
+VLRFRETECALC;float;no;8;"53   ";NULL;yes;(n/a);(n/a);NULL
+VLRJURODIST;float;no;8;"53   ";NULL;yes;(n/a);(n/a);NULL
+NOTAEMPENHO;varchar;no;22;"     ";"     ";yes;yes;yes;Latin1_General_CI_AI
+PESOBRUTOMANUAL;char;no;1;"     ";"     ";yes;yes;yes;Latin1_General_CI_AI
+PESOLIQUIMANUAL;char;no;1;"     ";"     ";yes;yes;yes;Latin1_General_CI_AI
+CODTPD;int;no;4;"10   ";"0    ";yes;(n/a);(n/a);NULL
+CODVTP;int;no;4;"10   ";"0    ";yes;(n/a);(n/a);NULL
+CANCELADO;char;no;1;"     ";"     ";yes;yes;yes;Latin1_General_CI_AI
+NUPCA;int;no;4;"10   ";"0    ";yes;(n/a);(n/a);NULL
+INDPRESNFCE;char;no;1;"     ";"     ";yes;yes;yes;Latin1_General_CI_AI
+M3;float;no;8;"53   ";NULL;yes;(n/a);(n/a);NULL
+VLRTOTLIQITEMMOE;float;no;8;"53   ";NULL;yes;(n/a);(n/a);NULL
+VLRDESCTOTITEMMOE;float;no;8;"53   ";NULL;no;(n/a);(n/a);NULL
+CHAVECTE;varchar;no;44;"     ";"     ";yes;yes;yes;Latin1_General_CI_AI
+PRODPRED;varchar;no;60;"     ";"     ";yes;yes;yes;Latin1_General_CI_AI
+TPEMISCTE;smallint;no;2;"5    ";"0    ";yes;(n/a);(n/a);NULL
+TPAMBCTE;char;no;1;"     ";"     ";yes;yes;yes;Latin1_General_CI_AI
+LOTACAO;char;no;1;"     ";"     ";yes;yes;yes;Latin1_General_CI_AI
+STATUSCTE;char;no;1;"     ";"     ";yes;yes;yes;Latin1_General_CI_AI
+NUMALEATORIOCTE;int;no;4;"10   ";"0    ";yes;(n/a);(n/a);NULL
+NUMPROTOCCTE;int;no;4;"10   ";"0    ";yes;(n/a);(n/a);NULL
+DHPROTOCCTE;datetime;no;8;"     ";"     ";yes;(n/a);(n/a);NULL
+NULOTECTE;int;no;4;"10   ";"0    ";yes;(n/a);(n/a);NULL
+DTDECLARA;datetime;no;8;"     ";"     ";yes;(n/a);(n/a);NULL
+REBOQUE1;int;no;4;"10   ";"0    ";yes;(n/a);(n/a);NULL
+REBOQUE2;int;no;4;"10   ";"0    ";yes;(n/a);(n/a);NULL
+REBOQUE3;int;no;4;"10   ";"0    ";yes;(n/a);(n/a);NULL
+SITUACAOCTE;char;no;1;"     ";"     ";yes;yes;yes;Latin1_General_CI_AI
+CTELOTACAO;char;no;1;"     ";"     ";yes;yes;yes;Latin1_General_CI_AI
+CODVEITRACAO;int;no;4;"10   ";"0    ";yes;(n/a);(n/a);NULL
+CODOBRA;varchar;no;15;"     ";"     ";yes;yes;yes;Latin1_General_CI_AI
+CODART;varchar;no;15;"     ";"     ";yes;yes;yes;Latin1_General_CI_AI
+IDIPROC;int;no;4;"10   ";"0    ";yes;(n/a);(n/a);NULL
+VIATRANSP;char;no;2;"     ";"     ";yes;yes;yes;Latin1_General_CI_AI
+TIPPROCIMP;char;no;1;"     ";"     ";yes;yes;yes;Latin1_General_CI_AI
+CNPJADQUIRENTE;varchar;no;14;"     ";"     ";yes;yes;yes;Latin1_General_CI_AI
+UFADQUIRENTE;varchar;no;2;"     ";"     ";yes;yes;yes;Latin1_General_CI_AI
+NUNOTASUB;int;no;4;"10   ";"0    ";yes;(n/a);(n/a);NULL
+CHAVENFSE;varchar;no;52;"     ";"     ";yes;no;yes;Latin1_General_CI_AI
+DHEMISSEPEC;datetime;no;8;"     ";"     ";yes;(n/a);(n/a);NULL
+VLRICMSDIFALDEST;float;no;8;"53   ";NULL;yes;(n/a);(n/a);NULL
+VLRICMSDIFALREM;float;no;8;"53   ";NULL;yes;(n/a);(n/a);NULL
+VLRICMSFCP;float;no;8;"53   ";NULL;yes;(n/a);(n/a);NULL
+MODENTREGA;char;no;1;"     ";"     ";yes;no;yes;Latin1_General_CI_AI
+CIOT;numeric;no;9;"12   ";"0    ";yes;(n/a);(n/a);NULL
+VLRFRETETOTAL;float;no;8;"53   ";NULL;yes;(n/a);(n/a);NULL
+CODPARCTRANSPFINAL;int;no;4;"10   ";"0    ";yes;(n/a);(n/a);NULL
+FUSOEMISSEPEC;varchar;no;6;"     ";"     ";yes;no;yes;Latin1_General_CI_AI
+CHAVENFEREF;varchar;no;44;"     ";"     ";yes;no;yes;Latin1_General_CI_AI
+VLRDESCRAT;float;no;8;"53   ";NULL;yes;(n/a);(n/a);NULL
+SEQCONFIRMA;int;no;4;"10   ";"0    ";yes;(n/a);(n/a);NULL
+CODCONTATOENTREGA;int;no;4;"10   ";"0    ";yes;(n/a);(n/a);NULL
+CODCIDORIGEM;int;no;4;"10   ";"0    ";yes;(n/a);(n/a);NULL
+CODCIDDESTINO;int;no;4;"10   ";"0    ";yes;(n/a);(n/a);NULL
+CODCIDENTREGA;int;no;4;"10   ";"0    ";yes;(n/a);(n/a);NULL
+CODUFORIGEM;smallint;no;2;"5    ";"0    ";yes;(n/a);(n/a);NULL
+CODUFDESTINO;smallint;no;2;"5    ";"0    ";yes;(n/a);(n/a);NULL
+CODUFENTREGA;smallint;no;2;"5    ";"0    ";yes;(n/a);(n/a);NULL
+CLASSIFICMS;char;no;1;"     ";"     ";yes;no;yes;Latin1_General_CI_AI
+NUFOP;smallint;no;2;"5    ";"0    ";yes;(n/a);(n/a);NULL
+CODRASTREAMENTOECT;varchar;no;30;"     ";"     ";yes;no;yes;Latin1_General_CI_AI
+NUODP;int;no;4;"10   ";"0    ";yes;(n/a);(n/a);NULL
+NUPEDFRETE;int;no;4;"10   ";"0    ";yes;(n/a);(n/a);NULL
+CODCIDPREST;int;no;4;"10   ";"0    ";yes;(n/a);(n/a);NULL
+FORMPGTCTE;char;no;1;"     ";"     ";yes;no;yes;Latin1_General_CI_AI
+TPAMBNFSE;char;no;1;"     ";"     ";yes;no;yes;Latin1_General_CI_AI
+PERCDESCFOB;float;no;8;"53   ";NULL;yes;(n/a);(n/a);NULL
+TERMACORDNOTA;char;no;1;"     ";"     ";yes;no;yes;Latin1_General_CI_AI
+VLRDESCQTD;float;no;8;"53   ";NULL;yes;(n/a);(n/a);NULL
+VLRICMSFCPINT;float;no;8;"53   ";NULL;yes;(n/a);(n/a);NULL
+VLRSTFCPINT;float;no;8;"53   ";NULL;yes;(n/a);(n/a);NULL
+VLRSTFCPINTANT;float;no;8;"53   ";NULL;yes;(n/a);(n/a);NULL
+CTEGLOBAL;char;no;1;"     ";"     ";yes;no;yes;Latin1_General_CI_AI
+VLRCARGAAVERB;float;no;8;"53   ";NULL;yes;(n/a);(n/a);NULL
+CODCIDINICTE;int;no;4;"10   ";"0    ";yes;(n/a);(n/a);NULL
+CODCIDFIMCTE;int;no;4;"10   ";"0    ";yes;(n/a);(n/a);NULL
+NUCFR;int;no;4;"10   ";"0    ";yes;(n/a);(n/a);NULL
+NFEDEVRECUSA;char;no;1;"     ";"     ";yes;no;yes;Latin1_General_CI_AI
+AGRUPFINNOTA;varchar;no;1;"     ";"     ";yes;no;yes;Latin1_General_CI_AI
+VLRPRESTAFRMM;float;no;8;"53   ";NULL;yes;(n/a);(n/a);NULL
+VLRAFRMM;float;no;8;"53   ";NULL;yes;(n/a);(n/a);NULL
+IDNAVIO;varchar;no;60;"     ";"     ";yes;no;yes;Latin1_General_CI_AI
+IRINNAVIO;varchar;no;10;"     ";"     ";yes;no;yes;Latin1_General_CI_AI
+DIRECAOVIAG;char;no;1;"     ";"     ";yes;no;yes;Latin1_General_CI_AI
+IDBALSA01;varchar;no;60;"     ";"     ";yes;no;yes;Latin1_General_CI_AI
+IDBALSA02;varchar;no;60;"     ";"     ";yes;no;yes;Latin1_General_CI_AI
+IDBALSA03;varchar;no;60;"     ";"     ";yes;no;yes;Latin1_General_CI_AI
+CONFIRMNOTAFAT;varchar;no;1;"     ";"     ";yes;no;yes;Latin1_General_CI_AI
+PERMALTERCENTRAL;varchar;no;60;"     ";"     ";yes;no;yes;Latin1_General_CI_AI
+CODGUF;smallint;no;2;"5    ";"0    ";yes;(n/a);(n/a);NULL
+FINALIZADOFOX;char;no;1;"     ";"     ";yes;no;yes;Latin1_General_CI_AI
+VLRREPREDTOTSEMDESC;float;no;8;"53   ";NULL;yes;(n/a);(n/a);NULL
+NUMCUPOMECONECT;int;no;4;"10   ";"0    ";yes;(n/a);(n/a);NULL
+TIMNUFINORIG;int;no;4;"10   ";"0    ";yes;(n/a);(n/a);NULL
+TIMCONTRATOVENDA;int;no;4;"10   ";"0    ";yes;(n/a);(n/a);NULL
+TIMORIGEM;char;no;2;"     ";"     ";yes;no;yes;Latin1_General_CI_AI
+TIMCONTRATOLTV;int;no;4;"10   ";"0    ";yes;(n/a);(n/a);NULL
+TIMNUNOTAMOD;int;no;4;"10   ";"0    ";yes;(n/a);(n/a);NULL
+DTEXTEMPK280;datetime;no;8;"     ";"     ";yes;(n/a);(n/a);NULL
+LATITUDE;varchar;no;255;"     ";"     ";yes;no;yes;Latin1_General_CI_AI
+LONGITUDE;varchar;no;255;"     ";"     ";yes;no;yes;Latin1_General_CI_AI
+CODPARCDESCARGAMDFE;int;no;4;"10   ";"0    ";yes;(n/a);(n/a);NULL
+CODDOCARRECAD;smallint;no;2;"5    ";"0    ";yes;(n/a);(n/a);NULL
+NUMDOCARRECAD;varchar;no;30;"     ";"     ";yes;no;yes;Latin1_General_CI_AI
+PREMIACAOESTADUAL;varchar;no;255;"     ";"     ";yes;no;yes;Latin1_General_CI_AI
+NFSEID;varchar;no;50;"     ";"     ";yes;no;yes;Latin1_General_CI_AI
+CODPARCDEPO;int;no;4;"10   ";"0    ";yes;(n/a);(n/a);NULL
+CODCHECKOUT;int;no;4;"10   ";"0    ";yes;(n/a);(n/a);NULL
+VLRFETHAB;float;no;8;"53   ";NULL;yes;(n/a);(n/a);NULL
+BASEICMSAT;float;no;8;"53   ";NULL;yes;(n/a);(n/a);NULL
+VLRICMSAT;float;no;8;"53   ";NULL;yes;(n/a);(n/a);NULL
+DISDESAUTIMPEMB;char;no;1;"     ";"     ";yes;no;yes;Latin1_General_CI_AI
+VALORDESONPISCOFINS;float;no;8;"53   ";NULL;yes;(n/a);(n/a);NULL
+NUNOTAORIGCORTE;int;no;4;"10   ";"0    ";yes;(n/a);(n/a);NULL
+IDDESCPARCERIA;numeric;no;9;"19   ";"0    ";yes;(n/a);(n/a);NULL
+VLRDESCPARCERIA;numeric;no;9;"18   ";"4    ";yes;(n/a);(n/a);NULL
+CLIENTEIDPARCERIA;numeric;no;9;"19   ";"0    ";yes;(n/a);(n/a);NULL
+IDPONTUACAOPARCERIA;numeric;no;9;"19   ";"0    ";yes;(n/a);(n/a);NULL
+BASEICMSSTFRETE;float;no;8;"53   ";NULL;yes;(n/a);(n/a);NULL
+ICMSSTFRETE;float;no;8;"53   ";NULL;yes;(n/a);(n/a);NULL
+VLRREPREDST;float;no;8;"53   ";NULL;yes;(n/a);(n/a);NULL
+CODINTERM;int;no;4;"10   ";"0    ";yes;(n/a);(n/a);NULL
+INTERMED;varchar;no;1;"     ";"     ";yes;no;yes;Latin1_General_CI_AI
+FISTEL;varchar;no;11;"     ";"     ";yes;no;yes;Latin1_General_CI_AI
+NUMCSTC;int;no;4;"10   ";"0    ";yes;(n/a);(n/a);NULL
+QTDUSU;int;no;4;"10   ";"0    ";yes;(n/a);(n/a);NULL
+NUMTERMTEL;varchar;no;13;"     ";"     ";yes;no;yes;Latin1_General_CI_AI
+TIPCLIENTESERVCOM;smallint;no;2;"5    ";"0    ";yes;(n/a);(n/a);NULL
+MD5MODCOMTEL;varchar;no;32;"     ";"     ";yes;no;yes;Latin1_General_CI_AI
+INDNEGMODAL;char;no;1;"     ";"     ";yes;no;yes;Latin1_General_CI_AI
+CODPARCRETIRADA;int;no;4;"10   ";"0    ";yes;(n/a);(n/a);NULL
+NOTAPORPEDIDOPDV;char;no;1;"     ";"     ";no;no;no;Latin1_General_CI_AI
+AD_NUPED;int;no;4;"10   ";"0    ";yes;(n/a);(n/a);NULL
+AD_OBSPEDIDO;text;no;16;"     ";"     ";yes;(n/a);(n/a);Latin1_General_CI_AI
+AD_SUPRIMECO;varchar;no;10;"     ";"     ";yes;no;yes;Latin1_General_CI_AI
+AD_VLRFRETEAJUSTADO;float;no;8;"53   ";NULL;yes;(n/a);(n/a);NULL
+SUMVLRIIOUTNOTA;int;no;4;"10   ";"0    ";yes;(n/a);(n/a);NULL
+SOMICMSNFENAC;int;no;4;"10   ";"0    ";yes;(n/a);(n/a);NULL
+SOMPISCOFNFENAC;int;no;4;"10   ";"0    ";yes;(n/a);(n/a);NULL
+RETORNOEQUIPFISCAL;text;no;16;"     ";"     ";yes;(n/a);(n/a);Latin1_General_CI_AI
+STATUSCFE;char;no;1;"     ";"     ";yes;no;yes;Latin1_General_CI_AI
+AD_NUNICO_GIRO;int;no;4;"10   ";"0    ";yes;(n/a);(n/a);NULL
+AD_CODTIPVENDAFAIXA;smallint;no;2;"5    ";"0    ";yes;(n/a);(n/a);NULL
+AD_FRETE;float;no;8;"53   ";NULL;yes;(n/a);(n/a);NULL
+AD_VLRADCUS;float;no;8;"53   ";NULL;yes;(n/a);(n/a);NULL
+AD_CODCLASSE;int;no;4;"10   ";"0    ";yes;(n/a);(n/a);NULL
+AD_STEXTRANOTATOT;float;no;8;"53   ";NULL;yes;(n/a);(n/a);NULL
+AD_PERCCLASSE;float;no;8;"53   ";NULL;yes;(n/a);(n/a);NULL
+AD_BLOQENVIOAUTOWMS;varchar;no;10;"     ";"     ";yes;no;yes;Latin1_General_CI_AI
+AD_DHLIBFAT;datetime;no;8;"     ";"     ";yes;(n/a);(n/a);NULL
+AD_CODUSULIBFAT;smallint;no;2;"5    ";"0    ";yes;(n/a);(n/a);NULL
+NURECEBIMENTO;int;no;4;"10   ";"0    ";yes;(n/a);(n/a);NULL
+RETGERWMS;char;no;1;"     ";"     ";yes;no;yes;Latin1_General_CI_AI
+NUNOTAREC;int;no;4;"10   ";"0    ";yes;(n/a);(n/a);NULL
+DHVIAGEM;datetime;no;8;"     ";"     ";yes;(n/a);(n/a);NULL
+NUSESSAO;int;no;4;"10   ";"0    ";yes;(n/a);(n/a);NULL
+TPFRETAMENTO;smallint;no;2;"5    ";"0    ";yes;(n/a);(n/a);NULL
+DTESCRCONT;datetime;no;8;"     ";"     ";yes;(n/a);(n/a);NULL
+MODRECEBPDVWEB;char;no;1;"     ";"     ";yes;no;yes;Latin1_General_CI_AI
+CHAVECTEREF;varchar;no;44;"     ";"     ";yes;no;yes;Latin1_General_CI_AI
+SERIENFSE;varchar;no;20;"     ";"     ";yes;no;yes;Latin1_General_CI_AI
+AD_VLRPROD_PENDENTE;float;no;8;"53   ";NULL;yes;(n/a);(n/a);NULL
+NUMPROTOCINCTE;varchar;no;30;"     ";"     ";yes;no;yes;Latin1_General_CI_AI
+AD_INFFINEXTRA;text;no;16;"     ";"     ";yes;(n/a);(n/a);Latin1_General_CI_AI
+AD_NUFINEXT;int;no;4;"10   ";"0    ";yes;(n/a);(n/a);NULL
+AD_SC_STATUSNOTA;varchar;no;100;"     ";"     ";yes;no;yes;Latin1_General_CI_AI
+HISTCONFIG;char;no;1;"     ";"     ";yes;no;yes;Latin1_General_CI_AI
+CHVNFEINEREF;varchar;no;4000;"     ";"     ";yes;no;yes;Latin1_General_CI_AI
+AD_PISRETIDO;float;no;8;"53   ";NULL;yes;(n/a);(n/a);NULL
+AD_COFINSRETIDO;float;no;8;"53   ";NULL;yes;(n/a);(n/a);NULL
+AD_CSLLRETIDO;float;no;8;"53   ";NULL;yes;(n/a);(n/a);NULL
+AD_NUNOTA_OLD;int;no;4;"10   ";"0    ";yes;(n/a);(n/a);NULL
+AD_LOGENVIOWMS;text;no;16;"     ";"     ";yes;(n/a);(n/a);Latin1_General_CI_AI
+CARACSER;varchar;no;30;"     ";"     ";yes;no;yes;Latin1_General_CI_AI
+CARACAD;varchar;no;15;"     ";"     ";yes;no;yes;Latin1_General_CI_AI
+SOMDESPADUNFENAC;int;no;4;"10   ";"0    ";yes;(n/a);(n/a);NULL
+AD_PRECOCALCULADO;varchar;no;10;"     ";"     ";yes;no;yes;Latin1_General_CI_AI
+NUMPROTOCINNFE;varchar;no;30;"     ";"     ";yes;no;yes;Latin1_General_CI_AI
+VLRREPTERC;float;no;8;"53   ";NULL;yes;(n/a);(n/a);NULL
+TIPOGUIA;char;no;1;"     ";"     ";yes;no;yes;Latin1_General_CI_AI
+NUMGUIA;int;no;4;"10   ";"0    ";yes;(n/a);(n/a);NULL
+UFEMISSAO;char;no;2;"     ";"     ";yes;no;yes;Latin1_General_CI_AI
+CPFRESPTEC;varchar;no;11;"     ";"     ";yes;no;yes;Latin1_General_CI_AI
+NUMRECEITAGRO;varchar;no;20;"     ";"     ";yes;no;yes;Latin1_General_CI_AI
+SERIEGUIA;varchar;no;9;"     ";"     ";yes;no;yes;Latin1_General_CI_AI
+AD_DHCONFIRMACAO;datetime;no;8;"     ";"     ";yes;(n/a);(n/a);NULL
+UFEMISS;smallint;no;2;"5    ";"0    ";yes;(n/a);(n/a);NULL
+AD_NUNOTACORD;int;no;4;"10   ";"0    ";yes;(n/a);(n/a);NULL
+AD_CODPARCCORD;int;no;4;"10   ";"0    ";yes;(n/a);(n/a);NULL
+AD_IDDPS;int;no;4;"10   ";"0    ";yes;(n/a);(n/a);NULL
+CHAVESINIEF1324;varchar;no;360;"     ";"     ";yes;no;yes;Latin1_General_CI_AI
+CHAVENFCOM;varchar;no;44;"     ";"     ";yes;no;yes;Latin1_General_CI_AI
+NUMPROTOCNFCOM;varchar;no;30;"     ";"     ";yes;no;yes;Latin1_General_CI_AI
+TPAMBNFCOM;varchar;no;1;"     ";"     ";yes;no;yes;Latin1_General_CI_AI
+STATUSNFCOM;varchar;no;1;"     ";"     ";yes;no;yes;Latin1_General_CI_AI
+TPEMISNFCOM;int;no;4;"10   ";"0    ";yes;(n/a);(n/a);NULL
+SITUACAONFCOM;varchar;no;1;"     ";"     ";yes;no;yes;Latin1_General_CI_AI
+NULOTENFCOM;int;no;4;"10   ";"0    ";yes;(n/a);(n/a);NULL
+TPRETISS;char;no;1;"     ";"     ";yes;no;yes;Latin1_General_CI_AI
+VLRICMSRET;float;no;8;"53   ";NULL;yes;(n/a);(n/a);NULL
+CMUNFATGER;int;no;4;"10   ";"0    ";yes;(n/a);(n/a);NULL
+CODCFO;smallint;no;2;"5    ";"0    ";yes;(n/a);(n/a);NULL
+VLRSERVICO;float;no;8;"53   ";NULL;yes;(n/a);(n/a);NULL
+BCICMSRET;float;no;8;"53   ";NULL;yes;(n/a);(n/a);NULL
+ALIQICMSRET;float;no;8;"53   ";NULL;yes;(n/a);(n/a);NULL
+CHAVENFETERCEIROREF;varchar;no;4000;"     ";"     ";yes;no;yes;Latin1_General_CI_AI
+LOCALFINALSERV;varchar;no;1;"     ";"     ";yes;no;yes;Latin1_General_CI_AI
+INDCONSFINAL;char;no;1;"     ";"     ";yes;no;yes;Latin1_General_CI_AI
+AD_CODPARC;int;no;4;"10   ";"0    ";yes;(n/a);(n/a);NULL
+INDDEST;char;no;1;"     ";"     ";yes;no;yes;Latin1_General_CI_AI
+CODLOCOPER;smallint;no;2;"5    ";"0    ";yes;(n/a);(n/a);NULL
+AD_ENVIADO_WMS;varchar;no;10;"     ";"     ";yes;no;yes;Latin1_General_CI_AI
+AD_ENVIADO_MAPA;varchar;no;10;"     ";"     ";yes;no;yes;Latin1_General_CI_AI

@@ -1,0 +1,257 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="rel_sub_comissionado_dev" language="groovy" pageWidth="555" pageHeight="802" columnWidth="555" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0">
+	<property name="ireport.zoom" value="1.8181818181818215"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<property name="ireport.definition"/>
+	<parameter name="DATA_NEG_INI" class="java.sql.Timestamp" isForPrompting="false">
+		<property name="TGFCAB" value="DTNEG"/>
+		<parameterDescription><![CDATA[DT. de Negociação(inicio)]]></parameterDescription>
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<parameter name="DATA_NEG_FIN" class="java.sql.Timestamp" isForPrompting="false">
+		<property name="TGFCAB" value="DTNEG"/>
+		<parameterDescription><![CDATA[Dt. de Negociação(final)]]></parameterDescription>
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<parameter name="CODEMP" class="java.math.BigDecimal" isForPrompting="false">
+		<property name="PESQUISA" value="true"/>
+		<property name="NOMETABELA" value="TSIEMP"/>
+		<parameterDescription><![CDATA[]]></parameterDescription>
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<parameter name="CODVEND" class="java.math.BigDecimal" isForPrompting="false">
+		<property name="PESQUISA" value="true"/>
+		<property name="NOMETABELA" value="TGFVEN"/>
+		<parameterDescription><![CDATA[]]></parameterDescription>
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<parameter name="SUBREPORT_DIR" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA["C:\\Users\\rique\\Desktop\\Rel. Comissão\\"]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[SELECT DISTINCT
+    DEV.CODPARC,
+    PAR.NOMEPARC,
+    DEV.DTNEG,
+    DEV.NUMNOTA,
+    DEV.NUNOTA,
+	DEV.VLRNOTA AS VALORNOTA_BRUTO,
+	SUM(ITE_DEV.VLRTOT - ITE_DEV.VLRDESC - ITE_DEV.VLRREPRED - ITE_DEV.VLRIPI) AS VALORLIQ,
+    SUM(COM.VLRCOM_REP) AS VALOR_COMISSAO
+
+FROM
+    TGFCAB DEV
+    INNER JOIN TGFITE ITE_DEV ON ITE_DEV.NUNOTA = DEV.NUNOTA
+    INNER JOIN TGFPAR PAR ON PAR.CODPARC = DEV.CODPARC
+    INNER JOIN TGFVAR VAR_NOTA ON (VAR_NOTA.NUNOTA = ITE_DEV.NUNOTA AND VAR_NOTA.SEQUENCIA = ITE_DEV.SEQUENCIA)
+    INNER JOIN TGFVAR VAR_PED ON (VAR_PED.NUNOTA = VAR_NOTA.NUNOTAORIG AND VAR_PED.SEQUENCIA = VAR_NOTA.SEQUENCIAORIG)
+    LEFT JOIN AD_COMISSAODPS COM ON (COM.NUNOTAORIG = VAR_PED.NUNOTAORIG AND COM.SEQUENCIA = VAR_PED.SEQUENCIAORIG)
+
+WHERE
+    DEV.CODEMP IN ($P{CODEMP})
+    AND (DEV.DTNEG BETWEEN $P{DATA_NEG_INI} AND $P{DATA_NEG_FIN})
+    AND (ITE_DEV.CODVEND = $P{CODVEND})
+
+    AND DEV.CODTIPOPER IN ('1200','1201')
+    AND DEV.STATUSNOTA = 'L'
+
+GROUP BY
+    DEV.CODPARC,
+    PAR.NOMEPARC,
+    DEV.DTNEG,
+    DEV.NUMNOTA,
+    DEV.NUNOTA,
+    DEV.VLRNOTA
+
+UNION ALL
+
+SELECT DISTINCT
+    DEV.CODPARC,
+    PAR.NOMEPARC,
+    DEV.DTNEG,
+    DEV.NUMNOTA,
+    DEV.NUNOTA,
+	DEV.VLRNOTA AS VALORNOTA_BRUTO,
+	SUM(ITE_DEV.VLRTOT - ITE_DEV.VLRDESC - ITE_DEV.VLRREPRED - ITE_DEV.VLRIPI) AS VALORLIQ,
+    SUM(COM.VLRCOM_ATE) AS VALOR_COMISSAO
+
+FROM
+    TGFCAB DEV
+    INNER JOIN TGFITE ITE_DEV ON ITE_DEV.NUNOTA = DEV.NUNOTA
+    INNER JOIN TGFPAR PAR ON PAR.CODPARC = DEV.CODPARC
+    INNER JOIN TGFVAR VAR_NOTA ON (VAR_NOTA.NUNOTA = ITE_DEV.NUNOTA AND VAR_NOTA.SEQUENCIA = ITE_DEV.SEQUENCIA)
+    INNER JOIN TGFVAR VAR_PED ON (VAR_PED.NUNOTA = VAR_NOTA.NUNOTAORIG AND VAR_PED.SEQUENCIA = VAR_NOTA.SEQUENCIAORIG)
+    LEFT JOIN AD_COMISSAODPS COM ON (COM.NUNOTAORIG = VAR_PED.NUNOTAORIG AND COM.SEQUENCIA = VAR_PED.SEQUENCIAORIG)
+
+WHERE
+    DEV.CODEMP IN ($P{CODEMP})
+    AND (DEV.DTNEG BETWEEN $P{DATA_NEG_INI} AND $P{DATA_NEG_FIN})
+    AND (ITE_DEV.CODEXEC = $P{CODVEND})
+
+    AND DEV.CODTIPOPER IN ('1200','1201')
+    AND DEV.STATUSNOTA = 'L'
+
+GROUP BY
+    DEV.CODPARC,
+    PAR.NOMEPARC,
+    DEV.DTNEG,
+    DEV.NUMNOTA,
+    DEV.NUNOTA,
+    DEV.VLRNOTA
+
+ORDER BY
+    DEV.DTNEG, DEV.NUMNOTA]]>
+	</queryString>
+	<field name="CODPARC" class="java.lang.Integer"/>
+	<field name="NOMEPARC" class="java.lang.String"/>
+	<field name="DTNEG" class="java.sql.Timestamp"/>
+	<field name="NUMNOTA" class="java.lang.Integer"/>
+	<field name="NUNOTA" class="java.lang.Integer"/>
+	<field name="VALORNOTA_BRUTO" class="java.math.BigDecimal"/>
+	<field name="VALORLIQ" class="java.math.BigDecimal"/>
+	<field name="VALOR_COMISSAO" class="java.math.BigDecimal"/>
+	<variable name="VALOR_TOTAL" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{VALORLIQ}]]></variableExpression>
+	</variable>
+	<variable name="VALOR_COMISSAO" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{VALOR_COMISSAO}]]></variableExpression>
+	</variable>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="11">
+			<staticText>
+				<reportElement mode="Opaque" x="5" y="0" width="542" height="11" backcolor="#CCCCCC"/>
+				<textElement textAlignment="Center">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Relação de notas devolvidas]]></text>
+			</staticText>
+		</band>
+	</title>
+	<columnHeader>
+		<band height="10" splitType="Stretch">
+			<staticText>
+				<reportElement x="4" y="0" width="65" height="10"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="7" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Cód,Parceiro]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="71" y="0" width="196" height="10"/>
+				<textElement verticalAlignment="Middle">
+					<font size="7" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Nome parceiro]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="270" y="0" width="66" height="10"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="7" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Dt.Negociação]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="336" y="0" width="60" height="10"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="7" isBold="true"/>
+				</textElement>
+				<text><![CDATA[N.Nota]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="396" y="0" width="76" height="10"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="7" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Valor]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="472" y="0" width="76" height="10"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="7" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Valor Comissão]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="12" splitType="Stretch">
+			<textField>
+				<reportElement x="4" y="1" width="65" height="10"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="6"/>
+				</textElement>
+				<textFieldExpression class="java.lang.Integer"><![CDATA[$F{CODPARC}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="71" y="1" width="196" height="10"/>
+				<textElement verticalAlignment="Middle">
+					<font size="6"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{NOMEPARC}]]></textFieldExpression>
+			</textField>
+			<textField pattern="dd/MM/yyyy">
+				<reportElement x="270" y="1" width="66" height="10"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="6"/>
+				</textElement>
+				<textFieldExpression class="java.sql.Timestamp"><![CDATA[$F{DTNEG}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="336" y="1" width="60" height="10"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="6"/>
+				</textElement>
+				<textFieldExpression class="java.lang.Integer"><![CDATA[$F{NUMNOTA}]]></textFieldExpression>
+			</textField>
+			<textField pattern="¤ #,##0.00">
+				<reportElement x="396" y="1" width="76" height="10"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="6"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{VALORLIQ}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement x="5" y="11" width="542" height="1"/>
+			</line>
+			<textField pattern="¤ #,##0.00">
+				<reportElement x="472" y="1" width="76" height="10"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="6"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{VALOR_COMISSAO}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<lastPageFooter>
+		<band height="18">
+			<staticText>
+				<reportElement x="340" y="0" width="56" height="12"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Valor total: ]]></text>
+			</staticText>
+			<line>
+				<reportElement x="0" y="13" width="543" height="1"/>
+			</line>
+			<textField pattern="¤ #,##0.00">
+				<reportElement x="396" y="0" width="76" height="12"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{VALOR_TOTAL}]]></textFieldExpression>
+			</textField>
+			<textField pattern="¤ #,##0.00">
+				<reportElement x="472" y="0" width="76" height="12"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{VALOR_COMISSAO}]]></textFieldExpression>
+			</textField>
+		</band>
+	</lastPageFooter>
+</jasperReport>
