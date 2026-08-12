@@ -54,8 +54,8 @@ FROM
      TSICTA CTA
 WHERE
       MBC.CODCTABCOINT = CTA.CODCTABCOINT AND
-   (( MBC.DTLANC >= $P{DTLANCINIC})   AND
-    ( MBC.DTLANC <= $P{DTLANCFIN})  AND
+   (( cast(MBC.DTLANC as date) >= cast($P{DTLANCINIC} as date))   AND
+    ( cast(MBC.DTLANC as date) <= cast($P{DTLANCFIN} as date))  AND
     ( MBC.CODCTABCOINT = $P{PK_CODCTABCOINT})
        )]]>
 	</queryString>
