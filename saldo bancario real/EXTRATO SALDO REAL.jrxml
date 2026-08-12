@@ -1,0 +1,348 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="EXTRATO SALDO REAL" language="groovy" pageWidth="595" pageHeight="842" columnWidth="535" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<property name="ireport.definition"/>
+	<style name="Title" forecolor="#FFFFFF" fontName="Arial" fontSize="50" isBold="false" pdfFontName="Times-Bold"/>
+	<style name="SubTitle" forecolor="#CCCCCC" fontName="Arial" fontSize="18" isBold="false" pdfFontName="Times-Roman"/>
+	<style name="Column header" forecolor="#666666" fontName="Arial" fontSize="14" isBold="true" pdfFontName="Times-Roman"/>
+	<style name="Detail" mode="Transparent" fontName="Arial" pdfFontName="Times-Roman"/>
+	<style name="Row" mode="Transparent" fontName="Arial" pdfFontName="Times-Roman">
+		<conditionalStyle>
+			<conditionExpression><![CDATA[$V{REPORT_COUNT}%2 == 0]]></conditionExpression>
+			<style mode="Opaque" backcolor="#F0EFEF"/>
+		</conditionalStyle>
+	</style>
+	<parameter name="PK_CODCTABCOINT" class="java.lang.String">
+		<property name="nomeTabela" value="TSICTA"/>
+		<parameterDescription><![CDATA[Conta Bancária]]></parameterDescription>
+	</parameter>
+	<parameter name="DTLANCINIC" class="java.sql.Timestamp">
+		<parameterDescription><![CDATA[Data Inicial]]></parameterDescription>
+	</parameter>
+	<parameter name="DTLANCFIN" class="java.sql.Timestamp">
+		<parameterDescription><![CDATA[Data Final]]></parameterDescription>
+	</parameter>
+	<parameter name="PDIR_MODELO" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA["./"]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[SELECT
+    MBC.CODCTABCOINT As "Cód. Conta",
+    MBC.DTLANC AS "Dt Lancto",
+    MBC.NUBCO As "Número",
+    MBC.HISTORICO As "Histórico",
+   (CASE WHEN MBC.RECDESP = 1 THEN  VLRLANC ELSE 0 END) As "Crédito",
+   (CASE WHEN MBC.RECDESP = -1 THEN  VLRLANC ELSE 0 END) As "Débito",
+    MBC.HISTORICO As "Detalhe",
+    CTA.DESCRICAO As "Descrição",
+--Função para Obter Saldo Inicial e Saldo Final
+    SANKHYA.OBTEM_SALDO_REAL_TGFMBC($P{PK_CODCTABCOINT},$P{DTLANCINIC}) as SALDOINICIAL,
+    SANKHYA.OBTEM_SALDO_REAL_TGFMBC($P{PK_CODCTABCOINT},$P{DTLANCINIC})+
+    (
+      SELECT
+          ISNULL(SUM(MBC1.VLRLANC*MBC1.RECDESP),0)
+      FROM
+          TGFMBC MBC1
+      WHERE
+          MBC1.CODCTABCOINT=$P{PK_CODCTABCOINT} AND
+          DTLANC>=$P{DTLANCINIC} AND
+          DTLANC<=$P{DTLANCFIN}) SALDOFINAL
+FROM
+     TGFMBC MBC,
+     TSICTA CTA
+WHERE
+      MBC.CODCTABCOINT = CTA.CODCTABCOINT AND
+   (( MBC.DTLANC >= $P{DTLANCINIC})   AND
+    ( MBC.DTLANC <= $P{DTLANCFIN})  AND
+    ( MBC.CODCTABCOINT = $P{PK_CODCTABCOINT})
+       )]]>
+	</queryString>
+	<field name="Cód. Conta" class="java.lang.Integer"/>
+	<field name="Dt Lancto" class="java.sql.Timestamp"/>
+	<field name="Número" class="java.lang.Integer"/>
+	<field name="Histórico" class="java.lang.String"/>
+	<field name="Crédito" class="java.math.BigDecimal"/>
+	<field name="Débito" class="java.math.BigDecimal"/>
+	<field name="Detalhe" class="java.lang.String"/>
+	<field name="Descrição" class="java.lang.String"/>
+	<field name="SALDOINICIAL" class="java.math.BigDecimal"/>
+	<field name="SALDOFINAL" class="java.math.BigDecimal"/>
+	<variable name="Saldo Real Acum._1" class="java.math.BigDecimal" resetType="Group" resetGroup="Cód. Conta" calculation="Sum">
+		<variableExpression><![CDATA[]]></variableExpression>
+	</variable>
+	<variable name="SALDOFINAL_2" class="java.math.BigDecimal" resetType="Group" resetGroup="Cód. Conta" calculation="Sum">
+		<variableExpression><![CDATA[$F{SALDOFINAL}]]></variableExpression>
+	</variable>
+	<variable name="Crédito_1" class="java.math.BigDecimal" resetType="Group" resetGroup="Cód. Conta" calculation="Sum">
+		<variableExpression><![CDATA[$F{Crédito}]]></variableExpression>
+	</variable>
+	<variable name="Débito_1" class="java.math.BigDecimal" resetType="Group" resetGroup="Cód. Conta" calculation="Sum">
+		<variableExpression><![CDATA[$F{Débito}]]></variableExpression>
+	</variable>
+	<group name="Cód. Conta">
+		<groupExpression><![CDATA[$F{Cód. Conta}]]></groupExpression>
+		<groupHeader>
+			<band height="33">
+				<frame>
+					<reportElement mode="Opaque" x="0" y="2" width="555" height="16" forecolor="#B89F7D" backcolor="#CCCCCC"/>
+					<textField isStretchWithOverflow="true">
+						<reportElement style="SubTitle" isPrintRepeatedValues="false" x="2" y="0" width="52" height="15" forecolor="#FFFFFF"/>
+						<textElement textAlignment="Center" verticalAlignment="Middle">
+							<font fontName="Arial" size="13" isBold="false"/>
+						</textElement>
+						<textFieldExpression class="java.lang.Integer"><![CDATA[$F{Cód. Conta}]]></textFieldExpression>
+					</textField>
+					<textField>
+						<reportElement x="67" y="0" width="438" height="15" forecolor="#FFFFFF"/>
+						<textElement verticalAlignment="Middle">
+							<font fontName="Arial" size="13" isBold="true"/>
+						</textElement>
+						<textFieldExpression class="java.lang.String"><![CDATA[$F{Descrição}]]></textFieldExpression>
+					</textField>
+					<staticText>
+						<reportElement x="57" y="0" width="8" height="15" forecolor="#FFFFFF"/>
+						<textElement textAlignment="Center" verticalAlignment="Middle">
+							<font fontName="Arial" size="13"/>
+						</textElement>
+						<text><![CDATA[-]]></text>
+					</staticText>
+				</frame>
+				<staticText>
+					<reportElement x="372" y="18" width="76" height="14"/>
+					<textElement verticalAlignment="Middle">
+						<font fontName="Arial" size="12" isBold="true"/>
+					</textElement>
+					<text><![CDATA[Saldo Inicial: ]]></text>
+				</staticText>
+				<textField pattern="¤ #,##0.00">
+					<reportElement x="449" y="19" width="100" height="14"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font fontName="Arial" isBold="true"/>
+					</textElement>
+					<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{SALDOINICIAL}]]></textFieldExpression>
+				</textField>
+			</band>
+		</groupHeader>
+		<groupFooter>
+			<band height="42">
+				<staticText>
+					<reportElement x="372" y="26" width="85" height="14"/>
+					<textElement verticalAlignment="Middle">
+						<font fontName="Arial" size="12" isBold="true"/>
+					</textElement>
+					<text><![CDATA[Saldo Final: ]]></text>
+				</staticText>
+				<textField pattern="#,##0.00;-#,##0.00">
+					<reportElement x="454" y="26" width="100" height="14"/>
+					<textElement textAlignment="Right">
+						<font fontName="Arial" size="12" isBold="true"/>
+					</textElement>
+					<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{SALDOFINAL}]]></textFieldExpression>
+				</textField>
+				<frame>
+					<reportElement mode="Opaque" x="1" y="2" width="555" height="16" forecolor="#B89F7D" backcolor="#999999"/>
+					<staticText>
+						<reportElement x="269" y="0" width="100" height="14"/>
+						<textElement textAlignment="Right" verticalAlignment="Middle">
+							<font fontName="Arial" size="12" isBold="true"/>
+						</textElement>
+						<text><![CDATA[Acumulados:]]></text>
+					</staticText>
+				</frame>
+				<textField pattern="#,##0.00;-#,##0.00">
+					<reportElement x="473" y="3" width="77" height="14"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font fontName="Arial" size="12" isBold="true"/>
+					</textElement>
+					<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{Débito_1}]]></textFieldExpression>
+				</textField>
+				<textField pattern="#,##0.00;-#,##0.00">
+					<reportElement x="390" y="3" width="77" height="14"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font fontName="Arial" size="12" isBold="true"/>
+					</textElement>
+					<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{Crédito_1}]]></textFieldExpression>
+				</textField>
+			</band>
+		</groupFooter>
+	</group>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="94" splitType="Stretch">
+			<staticText>
+				<reportElement style="Title" x="189" y="26" width="365" height="43" forecolor="#000000"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial" size="24" isBold="false"/>
+				</textElement>
+				<text><![CDATA[Extrato Bancário ( Saldo Real)]]></text>
+			</staticText>
+			<frame>
+				<reportElement mode="Opaque" x="189" y="71" width="366" height="20" forecolor="#000000" backcolor="#CCCCCC"/>
+			</frame>
+			<staticText>
+				<reportElement x="288" y="72" width="62" height="18"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Arial" size="15" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Periodo : ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="449" y="72" width="13" height="18"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial" size="15" isBold="true"/>
+				</textElement>
+				<text><![CDATA[à]]></text>
+			</staticText>
+			<textField pattern="dd/MM/yyyy">
+				<reportElement x="350" y="72" width="97" height="18"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial" size="15" isBold="true"/>
+				</textElement>
+				<textFieldExpression class="java.sql.Timestamp"><![CDATA[$P{DTLANCINIC}]]></textFieldExpression>
+			</textField>
+			<textField pattern="dd/MM/yyyy">
+				<reportElement x="465" y="72" width="86" height="18"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial" size="15" isBold="true"/>
+				</textElement>
+				<textFieldExpression class="java.sql.Timestamp"><![CDATA[$P{DTLANCFIN}]]></textFieldExpression>
+			</textField>
+			<image onErrorType="Blank">
+				<reportElement x="10" y="27" width="173" height="43"/>
+				<imageExpression class="java.lang.String"><![CDATA[$P{PDIR_MODELO} + "Logo/logo_saldoreal.jpg"]]></imageExpression>
+			</image>
+		</band>
+	</title>
+	<pageHeader>
+		<band splitType="Stretch"/>
+	</pageHeader>
+	<columnHeader>
+		<band height="19" splitType="Stretch">
+			<frame>
+				<reportElement mode="Opaque" x="3" y="2" width="550" height="16" forecolor="#B89F7D" backcolor="#FFFFCC"/>
+			</frame>
+			<staticText>
+				<reportElement x="391" y="3" width="75" height="14"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Arial" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Crédito]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="467" y="3" width="78" height="14"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Arial" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Débito]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="2" y="3" width="63" height="14"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Arial" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Dt.Lanc]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="65" y="3" width="67" height="14"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Arial" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Nro.Nota]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="132" y="3" width="259" height="14"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Arial" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Histórico]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="14" splitType="Stretch">
+			<frame>
+				<reportElement style="Row" mode="Opaque" x="0" y="0" width="555" height="13"/>
+				<textField isStretchWithOverflow="true" pattern="dd/MM/yyyy">
+					<reportElement style="Detail" positionType="Float" x="4" y="0" width="61" height="13"/>
+					<textElement verticalAlignment="Middle">
+						<font fontName="Arial" size="10"/>
+					</textElement>
+					<textFieldExpression class="java.sql.Timestamp"><![CDATA[$F{Dt Lancto}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true">
+					<reportElement style="Detail" positionType="Float" x="65" y="0" width="67" height="13"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Arial" size="10"/>
+					</textElement>
+					<textFieldExpression class="java.lang.Integer"><![CDATA[$F{Número}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true">
+					<reportElement style="Detail" positionType="Float" x="132" y="0" width="264" height="13"/>
+					<textElement verticalAlignment="Middle">
+						<font fontName="Arial" size="10"/>
+					</textElement>
+					<textFieldExpression class="java.lang.String"><![CDATA[$F{Histórico}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" pattern="#,##0.00;-#,##0.00">
+					<reportElement style="Detail" positionType="Float" x="396" y="0" width="71" height="13"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font fontName="Arial" size="10"/>
+					</textElement>
+					<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{Crédito}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" pattern="#,##0.00;-#,##0.00">
+					<reportElement style="Detail" positionType="Float" x="471" y="0" width="79" height="13"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font fontName="Arial" size="10"/>
+					</textElement>
+					<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{Débito}]]></textFieldExpression>
+				</textField>
+			</frame>
+		</band>
+	</detail>
+	<columnFooter>
+		<band height="5" splitType="Stretch">
+			<line>
+				<reportElement positionType="FixRelativeToBottom" x="0" y="3" width="555" height="1"/>
+				<graphicElement>
+					<pen lineWidth="0.5" lineColor="#999999"/>
+				</graphicElement>
+			</line>
+		</band>
+	</columnFooter>
+	<pageFooter>
+		<band height="25" splitType="Stretch">
+			<frame>
+				<reportElement mode="Opaque" x="0" y="1" width="555" height="24" forecolor="#D0B48E" backcolor="#000000"/>
+				<textField evaluationTime="Report">
+					<reportElement style="Column header" x="513" y="0" width="40" height="20" forecolor="#FFFFFF"/>
+					<textElement verticalAlignment="Middle">
+						<font fontName="Arial" size="10" isBold="false"/>
+					</textElement>
+					<textFieldExpression class="java.lang.String"><![CDATA[" " + $V{PAGE_NUMBER}]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement style="Column header" x="433" y="0" width="80" height="20" forecolor="#FFFFFF"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font fontName="Arial" size="10" isBold="false"/>
+					</textElement>
+					<textFieldExpression class="java.lang.String"><![CDATA["Page "+$V{PAGE_NUMBER}+" of"]]></textFieldExpression>
+				</textField>
+				<textField pattern="EEE, d MMM yyyy HH:mm" isBlankWhenNull="true">
+					<reportElement style="Column header" x="2" y="1" width="197" height="20" forecolor="#FFFFFF"/>
+					<textElement verticalAlignment="Middle">
+						<font fontName="Arial" size="10" isBold="false"/>
+					</textElement>
+					<textFieldExpression class="java.util.Date"><![CDATA[new java.util.Date()]]></textFieldExpression>
+				</textField>
+			</frame>
+		</band>
+	</pageFooter>
+	<summary>
+		<band splitType="Stretch"/>
+	</summary>
+</jasperReport>

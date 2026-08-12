@@ -343,9 +343,6 @@ ORDER BY CODVEND]]>
 		<band>
 			<subreport>
 				<reportElement key="rel_sub_comissionado" stretchType="RelativeToBandHeight" x="0" y="0" width="567" height="0"/>
-				<subreportParameter name="SUBREPORT_DIR">
-					<subreportParameterExpression><![CDATA[$P{SUBREPORT_DIR}]]></subreportParameterExpression>
-				</subreportParameter>
 				<subreportParameter name="DATA_NEG_INI">
 					<subreportParameterExpression><![CDATA[$P{DATA_NEG_INI}]]></subreportParameterExpression>
 				</subreportParameter>

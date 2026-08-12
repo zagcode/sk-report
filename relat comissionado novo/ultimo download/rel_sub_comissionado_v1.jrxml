@@ -4,9 +4,6 @@
 	<property name="ireport.x" value="0"/>
 	<property name="ireport.y" value="0"/>
 	<property name="ireport.definition"/>
-	<parameter name="SUBREPORT_DIR" class="java.lang.String" isForPrompting="false">
-		<defaultValueExpression><![CDATA["C:\\Users\\rique\\Desktop\\Rel. Comissão\\"]]></defaultValueExpression>
-	</parameter>
 	<parameter name="DATA_NEG_INI" class="java.sql.Timestamp">
 		<property name="TGFCAB" value="DTNEG"/>
 		<parameterDescription><![CDATA[DT. de Negociação(inicio)]]></parameterDescription>
@@ -30,7 +27,8 @@ SELECT
 FROM AD_COMISSAODPS COM
 INNER JOIN TGFPAR PAR ON PAR.CODPARC = COM.CODPARC
 LEFT JOIN TSICID CID ON CID.CODCID = PAR.CODCID
-WHERE COM.DTNEG BETWEEN $P{DATA_NEG_INI} AND $P{DATA_NEG_FIN}
+WHERE COM.SITUACAO = 'A'
+    AND COM.DTNEG BETWEEN $P{DATA_NEG_INI} AND $P{DATA_NEG_FIN}
     AND COM.CODEMP = $P{CODEMP}
     -- Se vendedor informado, filtra por ele; senão, filtra por tipo_classe
     AND COM.CODVEND = $P{CODVEND}
@@ -51,7 +49,8 @@ SELECT
 FROM AD_COMISSAODPS COM
 INNER JOIN TGFPAR PAR ON PAR.CODPARC = COM.CODPARC
 LEFT JOIN TSICID CID ON CID.CODCID = PAR.CODCID
-WHERE COM.DTNEG BETWEEN $P{DATA_NEG_INI} AND $P{DATA_NEG_FIN}
+WHERE COM.SITUACAO = 'A'
+    AND COM.DTNEG BETWEEN $P{DATA_NEG_INI} AND $P{DATA_NEG_FIN}
     AND COM.CODEMP = $P{CODEMP}
     AND COM.CODVENDATE IS NOT NULL
     -- Se vendedor informado, filtra por ele; senão, filtra por tipo_classe
