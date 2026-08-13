@@ -1049,34 +1049,56 @@ DanfeUtils.formatCnpj($F{CpfDestinatario})]]></textFieldExpression>
     +
     ( DanfeUtils.getFaturas($P{NUNOTA}, $P{JDBC_CONNECTION}, $P{REPORT_DATA_SOURCE}) == null
         ? ""
-        : " | " + new Object() {
-            String marcarAbatimentos(String faturaTexto) {
-                try {
-                    java.sql.PreparedStatement ps = $P{JDBC_CONNECTION}.prepareStatement(
-                        "SELECT FIN.DTVENC, FIN.VLRDESDOB FROM TGFFIN FIN"
-                        + " WHERE FIN.NUNOTA = ?"
+        : " | " + (
+            "".equals(
+                Funcoes.pdes(
+                    $P{JDBC_CONNECTION},
+                    "CONVERT(varchar(10), FIN.DTVENC, 103) + '|' + REPLACE(REPLACE(REPLACE(CONVERT(varchar(20), CAST(FIN.VLRDESDOB AS MONEY), 1), ',', 'X'), '.', ','), 'X', '.')",
+                    "TGFFIN FIN",
+                    "FIN.NUNOTA = " + $P{NUNOTA}
+                    + " AND FIN.CODTIPTIT = (SELECT INTEIRO FROM TSIPAR WHERE CHAVE = 'TIPTITCREDCLI' AND CODUSU = 0)"
+                    + " AND FIN.VLRDESDOB > 0"
+                    + " AND (FIN.DESDOBDUPL IS NULL OR FIN.DESDOBDUPL NOT IN ('M','V','K','F','T'))"
+                )
+            )
+            ? DanfeUtils.getFaturas($P{NUNOTA}, $P{JDBC_CONNECTION}, $P{REPORT_DATA_SOURCE})
+            : DanfeUtils.getFaturas($P{NUNOTA}, $P{JDBC_CONNECTION}, $P{REPORT_DATA_SOURCE}).replaceFirst(
+                "OUT=[\\d-]+\\s+Venc="
+                + java.util.regex.Pattern.quote(
+                    Funcoes.pdes(
+                        $P{JDBC_CONNECTION},
+                        "CONVERT(varchar(10), FIN.DTVENC, 103) + '|' + REPLACE(REPLACE(REPLACE(CONVERT(varchar(20), CAST(FIN.VLRDESDOB AS MONEY), 1), ',', 'X'), '.', ','), 'X', '.')",
+                        "TGFFIN FIN",
+                        "FIN.NUNOTA = " + $P{NUNOTA}
                         + " AND FIN.CODTIPTIT = (SELECT INTEIRO FROM TSIPAR WHERE CHAVE = 'TIPTITCREDCLI' AND CODUSU = 0)"
                         + " AND FIN.VLRDESDOB > 0"
                         + " AND (FIN.DESDOBDUPL IS NULL OR FIN.DESDOBDUPL NOT IN ('M','V','K','F','T'))"
-                    );
-                    ps.setBigDecimal(1, $P{NUNOTA});
-                    java.sql.ResultSet rs = ps.executeQuery();
-                    java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("dd/MM/yyyy");
-                    java.text.DecimalFormat df = new java.text.DecimalFormat("#,##0.00");
-                    while (rs.next()) {
-                        String venc = sdf.format(rs.getTimestamp("DTVENC"));
-                        String valor = df.format(rs.getDouble("VLRDESDOB"));
-                        String alvo = "OUT=[\\d-]+\\s+Venc=" + java.util.regex.Pattern.quote(venc) + "\\s+Valor=" + java.util.regex.Pattern.quote(valor);
-                        faturaTexto = faturaTexto.replaceFirst(alvo, "Abatimento de R\\$" + valor);
-                    }
-                    rs.close();
-                    ps.close();
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
-                return faturaTexto;
-            }
-        }.marcarAbatimentos( DanfeUtils.getFaturas($P{NUNOTA}, $P{JDBC_CONNECTION}, $P{REPORT_DATA_SOURCE}) )
+                    ).split("\\|")[0]
+                )
+                + "\\s+Valor="
+                + java.util.regex.Pattern.quote(
+                    Funcoes.pdes(
+                        $P{JDBC_CONNECTION},
+                        "CONVERT(varchar(10), FIN.DTVENC, 103) + '|' + REPLACE(REPLACE(REPLACE(CONVERT(varchar(20), CAST(FIN.VLRDESDOB AS MONEY), 1), ',', 'X'), '.', ','), 'X', '.')",
+                        "TGFFIN FIN",
+                        "FIN.NUNOTA = " + $P{NUNOTA}
+                        + " AND FIN.CODTIPTIT = (SELECT INTEIRO FROM TSIPAR WHERE CHAVE = 'TIPTITCREDCLI' AND CODUSU = 0)"
+                        + " AND FIN.VLRDESDOB > 0"
+                        + " AND (FIN.DESDOBDUPL IS NULL OR FIN.DESDOBDUPL NOT IN ('M','V','K','F','T'))"
+                    ).split("\\|")[1]
+                ),
+                "Abatimento de R\\$"
+                + Funcoes.pdes(
+                    $P{JDBC_CONNECTION},
+                    "CONVERT(varchar(10), FIN.DTVENC, 103) + '|' + REPLACE(REPLACE(REPLACE(CONVERT(varchar(20), CAST(FIN.VLRDESDOB AS MONEY), 1), ',', 'X'), '.', ','), 'X', '.')",
+                    "TGFFIN FIN",
+                    "FIN.NUNOTA = " + $P{NUNOTA}
+                    + " AND FIN.CODTIPTIT = (SELECT INTEIRO FROM TSIPAR WHERE CHAVE = 'TIPTITCREDCLI' AND CODUSU = 0)"
+                    + " AND FIN.VLRDESDOB > 0"
+                    + " AND (FIN.DESDOBDUPL IS NULL OR FIN.DESDOBDUPL NOT IN ('M','V','K','F','T'))"
+                ).split("\\|")[1]
+            )
+        )
     )
 )]]></textFieldExpression>
 				</textField>
